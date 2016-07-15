@@ -86,6 +86,8 @@ function directedScatterPlot(data) {
     	.duration(500)
     	.attr("r", 8)
 
+    // Directed Line
+
 	chart.line = d3.line()
 	    .x(function(d) { return xScale(d.fam_child_pov); })
 	    .y(function(d) { return yScale(d.tanf_fam); })
@@ -98,7 +100,7 @@ function directedScatterPlot(data) {
 		    .transition()
         .duration(800)
         .attrTween('d', pathTween);
-    
+ 
     function pathTween() {
 
         var interpolate = d3.scaleQuantile()
@@ -110,16 +112,5 @@ function directedScatterPlot(data) {
         };
     }
 
-
-
 };	
-
-
-
-
-
-
-
-
-
 
