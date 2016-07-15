@@ -77,33 +77,36 @@ function directedScatterPlot(data) {
     	.attr("cx", function(d){ return chart.xScale(d.fam_child_pov) })
     	.attr("cy", function(d){ return chart.yScale(d.tanf_fam) })
     	.transition()
-    	.delay(function (d,i){ return 450 + (i * 80) })
+    	.delay(function (d,i){ return 250 + (i * 80) })
     	.duration(500)
-    	.attr("r", 8)
+    	.attr("r", 8);
 
     // Directed Line
 
-	chart.line = d3.line()
-	    .x(function(d) { return xScale(d.fam_child_pov); })
-	    .y(function(d) { return yScale(d.tanf_fam); })
-	    .curve(d3.curveCatmullRom.alpha(0.7));
-
 	chart.svg.append("path")
-		.datum(data)
-		.attr("d", line)
+		.attr("d", chart.line)
 		.attr("class", "line")
 		    .transition()
+        .delay(2000)
         .duration(800)
-        .attrTween('d', pathTween);
- 
-    function pathTween() {
+        .attrTween('d', pathReveal);
+
+    chart.line = d3.line()
+        //.filter(function(d) { return d.year > 2004;})
+        .x(function(d) { return xScale(d.fam_child_pov); })
+        .y(function(d) { return yScale(d.tanf_fam); })
+        .curve(d3.curveCatmullRom.alpha(0.7));
+
+    function pathReveal() {
 
         var interpolate = d3.scaleQuantile()
             .domain([0,1])
             .range(d3.range(1, data.length + 1));
 
         return function(t) {
-            return line(data.slice(0, interpolate(t)));
+            return line(data
+                .filter(function(d) { return d.year < 2004;})
+                .slice(0, interpolate(t)));
         };
     }
 
