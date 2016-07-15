@@ -36,15 +36,16 @@ function directedScatterPlot(data) {
     	.attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
 
     chart.xScale = d3.scaleLinear()
-      	.domain([0, d3.max(data, function (d) { return d.fam_child_pov; })])
-    	.range([0, width]);
+      	.domain(d3.extent(data, function (d) { return d.fam_child_pov; }))
+    	.range([0, width])
+    	.nice();
 
     chart.yScale = d3.scaleLinear()
-      	.domain([d3.max(data, function (d) { return d.fam_child_pov; }), 0])
-    	.range([0, height]);
+      	.domain(d3.extent(data, function (d) { return d.tanf_fam }))
+    	.range([height, 0]);
 
-    var xAxis = d3.axisBottom(chart.xScale).ticks(10);
-	var yAxis = d3.axisLeft(chart.yScale).ticks(10);
+    var xAxis = d3.axisBottom(chart.xScale).ticks(5);
+	var yAxis = d3.axisLeft(chart.yScale).ticks(5);
 
 	// 45 degree angle scale? since above is impossible (probably, check data?)
 
@@ -63,15 +64,14 @@ function directedScatterPlot(data) {
 		.attr("x", -(chart.height / 2))
 		.attr("y", -(margin.left * 0.75))
 	    .style("text-anchor", "middle")
-		.html("Impoverished Families with Children");
+		.html("Families with Children on TANF");
 
 	chart.svg
 		.append("text")
 		.attr("x", chart.width / 2)
 		.attr("y", chart.height + margin.bottom * 0.75)
 		.style("text-anchor", "middle")
-		.html("Families with Children on TANF");
-
+		.html("Impoverished Families with Children");
 
     chart.svg
     	.selectAll(".circ")
@@ -80,15 +80,16 @@ function directedScatterPlot(data) {
     	.attr("class", "circ")
     	.attr("cx", function(d){ return chart.xScale(d.fam_child_pov) })
     	.attr("cy", function(d){ return chart.yScale(d.tanf_fam) })
-        .style('opacity', 0.75)
-    	.attr("r", 5)
-    	.attr("fill", "black");
+    	.attr("r", 6)
 
-    chart.svg
-    	.selectAll("circle")
+	chart.line = d3.line()
+	    .x(function(d) { return xScale(d.fam_child_pov); })
+	    .y(function(d) { return yScale(d.tanf_fam); });
 
-
-
+	chart.svg.append("path")
+		.datum(data)
+		.attr("d", line)
+		.attr("class", "line");
 };	
 
 
