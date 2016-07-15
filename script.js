@@ -46,6 +46,8 @@ function directedScatterPlot(data) {
     var xAxis = d3.axisBottom(chart.xScale).ticks(10);
 	var yAxis = d3.axisLeft(chart.yScale).ticks(10);
 
+	// 45 degree angle scale? since above is impossible (probably, check data?)
+
     chart.svg.append("g")
     	.attr("transform", function(){ return "translate(0," + chart.height + ")" })
     	.attr("class", "axis")
@@ -54,6 +56,22 @@ function directedScatterPlot(data) {
     chart.svg.append("g")
     	.attr("class", "axis")
     	.call(yAxis);
+
+	chart.svg
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("x", -(chart.height / 2))
+		.attr("y", -(margin.left * 0.75))
+	    .style("text-anchor", "middle")
+		.html("Impoverished Families with Children");
+
+	chart.svg
+		.append("text")
+		.attr("x", chart.width / 2)
+		.attr("y", chart.height + margin.bottom * 0.75)
+		.style("text-anchor", "middle")
+		.html("Families with Children on TANF");
+
 
     chart.svg
     	.selectAll(".circ")
