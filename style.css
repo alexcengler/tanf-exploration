@@ -129,9 +129,14 @@ hr {
     opacity: 0.7;
 
 }
+.year_note {
+    font: Lato;
+    font-size: 12px;
+    fill: #5c5859;
+}
 
 .annotation {
     font: Lato;
-    font-size: 12;
+    font-size: 20px;
     fill: #1696d2;"
 }

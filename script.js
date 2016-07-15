@@ -68,9 +68,11 @@ function directedScatterPlot(data) {
 		.style("text-anchor", "middle")
 		.html("Impoverished Families with Children");
 
+    var full = data.slice()
+
     chart.svg
     	.selectAll(".circ")
-    	.data(data, function(d){ return d.year }).enter()
+    	.data(full, function(d){ return d.year }).enter()
     	.append("circle")
     	.attr("class", "circ")
     	.attr("r", 0)
@@ -80,6 +82,22 @@ function directedScatterPlot(data) {
     	.delay(function (d,i){ return (i * 50) })
     	.duration(500)
     	.attr("r", 8);
+
+    chart.svg
+        .selectAll(".year_note")
+        .data(full).enter()
+        .append("text")
+        .attr("class", "year_note")
+        .attr("opacity", 0)
+        .attr("fill", "black")
+        .text(function(d){ return d.year })
+        .attr("x", function(d){ return chart.xScale(d.fam_child_pov) })
+        .attr("y", function(d){ return chart.yScale(d.tanf_fam) })
+        .transition()
+        .delay(function (d,i){ return (i * 50) })
+        .duration(500)
+        .attr("opacity", 1);
+
 
     // Directed Line
     chart.interpolate = d3.scaleQuantile()
@@ -240,7 +258,7 @@ function directedScatterPlot(data) {
                 .slice(0, chart.interpolate(t)));
         };
     };    
-    // Change class of svg path incrementally? So highlighted part is magenta?
+    // Year formatting - get rid of first two digits: '99 '00 '01 '02
     // Tick Formatting, should just be millions
 
 };	
