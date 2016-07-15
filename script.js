@@ -1,10 +1,5 @@
 
 
-// fam-w-children-tanf-ratio.json
-// CBPP Table 2: National Single-Year TANF-to-Poverty Ratios
-// http://www.cbpp.org/research/family-income-support/tanf-continues-to-weaken-as-a-safety-net
-
-
 d3.queue()
   .defer(d3.json, 'data/fam-w-children-tanf-ratio.json')
   .awaitAll(function (error, results) {
