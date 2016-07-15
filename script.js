@@ -90,7 +90,21 @@ function directedScatterPlot(data) {
 	chart.svg.append("path")
 		.datum(data)
 		.attr("d", line)
-		.attr("class", "line");
+		.attr("class", "line")
+		    .transition()
+        .duration(2500)
+        .attrTween('d', pathTween);
+    
+    function pathTween() {
+
+        var interpolate = d3.scaleQuantile()
+            .domain([0,1])
+            .range(d3.range(1, data.length + 1));
+
+        return function(t) {
+            return line(data.slice(0, interpolate(t)));
+        };
+    }
 
 
 };	
