@@ -77,38 +77,144 @@ function directedScatterPlot(data) {
     	.attr("cx", function(d){ return chart.xScale(d.fam_child_pov) })
     	.attr("cy", function(d){ return chart.yScale(d.tanf_fam) })
     	.transition()
-    	.delay(function (d,i){ return 250 + (i * 80) })
+    	.delay(function (d,i){ return (i * 50) })
     	.duration(500)
     	.attr("r", 8);
 
     // Directed Line
+    chart.interpolate = d3.scaleQuantile()
+        .domain([0,1])
+        .range(d3.range(1, data.length + 1));   
 
-	chart.svg.append("path")
-		.attr("d", chart.line)
-		.attr("class", "line")
-		    .transition()
-        .delay(2000)
-        .duration(800)
-        .attrTween('d', pathReveal);
+    var stg_dur = 500
+        stg_delay = 1000
 
-    chart.line = d3.line()
-        //.filter(function(d) { return d.year > 2004;})
+    // Reveal Path - Stage 1
+    chart.svg.append("path")
+        .attr("class", "line")
+        .transition()
+        .delay(stg_delay)
+        .duration(stg_dur)
+        .attrTween('d', pathReveal_stg1);
+
+    var line = d3.line()
         .x(function(d) { return xScale(d.fam_child_pov); })
         .y(function(d) { return yScale(d.tanf_fam); })
         .curve(d3.curveCatmullRom.alpha(0.7));
 
-    function pathReveal() {
+    // Reveal Annotations - Stage 1
+    var annot1 = chart.svg
+        .append("g").attr("transform", "translate(20,80)")
+        .append("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("opacity", 0)
+        .attr("class", "annotation");
 
-        var interpolate = d3.scaleQuantile()
-            .domain([0,1])
-            .range(d3.range(1, data.length + 1));
+    annot1.append("tspan").html("Families enrolled in")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF  collapses after")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("1996 reform.")
+    annot1.transition().delay(stg_delay).duration(stg_dur).attr("opacity", 1)
+    .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
 
+    // Note that families in poverty reduced too. Or maybe this is because of the new qualifications?
+
+
+    // Reveal Path - Stage 2
+    chart.svg.append("path")
+        .attr("class", "line")
+        .transition()
+        .delay(stg_delay * 3 + stg_dur*1.5)
+        .duration(stg_dur)
+        .attrTween('d', pathReveal_stg2);
+
+    // Reveal Annotations - Stage 2
+    var annot2 = chart.svg
+        .append("g").attr("transform", "translate(150,350)")
+        .append("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("opacity", 0)
+        .attr("class", "annotation");
+
+    annot2.append("tspan").html("The 2001 recession")
+    annot2.append("tspan").attr("x","0").attr("dy","1.2em").html("pushed more families")
+    annot2.append("tspan").attr("x","0").attr("dy","1.2em").html("into poverty.")
+    annot2.transition().delay(stg_delay * 4 + stg_dur ).duration(stg_dur).attr("opacity", 1)
+    .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
+
+    // Reveal Path - Stage 3
+    chart.svg.append("path")
+        .attr("class", "line")
+        .transition()
+        .delay(stg_delay * 6 + stg_dur * 2)
+        .duration(stg_dur)
+        .attrTween('d', pathReveal_stg3);
+
+    // Reveal Annotations - Stage 3
+    var annot3 = chart.svg
+        .append("g").attr("transform", "translate(150,350)")
+        .append("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("opacity", 0)
+        .attr("class", "annotation");
+
+    annot3.append("tspan").html("The recovery didn't")
+    annot3.append("tspan").attr("x","0").attr("dy","1.2em").html("reduce the number")
+    annot3.append("tspan").attr("x","0").attr("dy","1.2em").html("of families in poverty.")
+    annot3.transition().delay(stg_delay * 6 + stg_dur * 2 ).duration(stg_dur).attr("opacity", 1)
+    .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
+
+    // Reveal Annotations - Stage 4
+    var annot4 = chart.svg
+        .append("g").attr("transform", "translate(450,350)")
+        .append("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("opacity", 0)
+        .attr("class", "annotation");
+
+    annot4.append("tspan").html("And the 2008")
+    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("recession created many")
+    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("new poor families, with no TANF.")
+    annot4.transition().delay(stg_delay * 8 + stg_dur * 3).duration(stg_dur).attr("opacity", 1)
+    .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
+
+
+    function pathReveal_stg1() {
         return function(t) {
             return line(data
-                .filter(function(d) { return d.year < 2004;})
-                .slice(0, interpolate(t)));
+                .filter(function(d) { return d.year < 2001;})
+                .slice(0, chart.interpolate(t)));
         };
-    }
+    };
+
+    function pathReveal_stg2() {
+        return function(t) {
+            return line(data
+                .filter(function(d) { return d.year >= 2000 && d.year < 2005;})
+                .slice(0, chart.interpolate(t)));
+        };
+    };
+
+    function pathReveal_stg3() {
+        return function(t) {
+            return line(data
+                .filter(function(d) { return d.year >= 2004 && d.year < 2008;})
+                .slice(0, chart.interpolate(t)));
+        };
+    };
+
+    function pathReveal_stg4() {
+        return function(t) {
+            return line(data
+                .filter(function(d) { return d.year >= 2008 ;})
+                .slice(0, chart.interpolate(t)));
+        };
+    };    
+    // Change class of svg path incrementally? So highlighted part is magenta?
+    // Tick Formatting, should just be millions
 
 };	
 
