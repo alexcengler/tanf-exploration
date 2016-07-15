@@ -16,7 +16,7 @@ d3.queue()
 var margin = {
 	left: 100,
 	right: 50,
-	top: 100,
+	top: 50,
 	bottom: 50
 };
 
@@ -78,9 +78,13 @@ function directedScatterPlot(data) {
     	.data(data, function(d){ return d.year }).enter()
     	.append("circle")
     	.attr("class", "circ")
+    	.attr("r", 0)
     	.attr("cx", function(d){ return chart.xScale(d.fam_child_pov) })
     	.attr("cy", function(d){ return chart.yScale(d.tanf_fam) })
-    	.attr("r", 6)
+    	.transition()
+    	.delay(function (d,i){ return 450 + (i * 80) })
+    	.duration(500)
+    	.attr("r", 8)
 
 	chart.line = d3.line()
 	    .x(function(d) { return xScale(d.fam_child_pov); })
@@ -92,7 +96,7 @@ function directedScatterPlot(data) {
 		.attr("d", line)
 		.attr("class", "line")
 		    .transition()
-        .duration(2500)
+        .duration(800)
         .attrTween('d', pathTween);
     
     function pathTween() {
@@ -105,6 +109,7 @@ function directedScatterPlot(data) {
             return line(data.slice(0, interpolate(t)));
         };
     }
+
 
 
 };	

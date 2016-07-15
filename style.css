@@ -11,22 +11,19 @@
 #chart svg {
   display: block;
   margin: 0 auto;
-  background: #eeeeee;
 }
 
 .circ { 
     stroke-width: 0;
     stroke-linecap: round;
-    opacity: 0.5;
+    opacity: 0.6;
     fill: #1696d2;
  }
-
-.circ:hover {
-
-}
 
 .line {
 	stroke: black;
 	stroke-width: 3;
 	fill: none;
+    opacity: 0.7;
+
 }
