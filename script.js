@@ -84,12 +84,15 @@ function directedScatterPlot(data) {
 
 	chart.line = d3.line()
 	    .x(function(d) { return xScale(d.fam_child_pov); })
-	    .y(function(d) { return yScale(d.tanf_fam); });
+	    .y(function(d) { return yScale(d.tanf_fam); })
+	    .curve(d3.curveCatmullRom.alpha(0.7));
 
 	chart.svg.append("path")
 		.datum(data)
 		.attr("d", line)
 		.attr("class", "line");
+
+
 };	
 
 
