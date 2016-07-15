@@ -86,21 +86,26 @@ function directedScatterPlot(data) {
         .domain([0,1])
         .range(d3.range(1, data.length + 1));   
 
-    var stg_dur = 500
-        stg_delay = 1000
+    var stg_dur = 800
+        stg_delay = 1400
 
-    // Reveal Path - Stage 1
-    chart.svg.append("path")
-        .attr("class", "line")
-        .transition()
-        .delay(stg_delay)
-        .duration(stg_dur)
-        .attrTween('d', pathReveal_stg1);
 
     var line = d3.line()
         .x(function(d) { return xScale(d.fam_child_pov); })
         .y(function(d) { return yScale(d.tanf_fam); })
         .curve(d3.curveCatmullRom.alpha(0.7));
+
+    // Reveal Path - Stage 1
+    chart.svg.append("path")
+        .attr("class", "line")
+        .style("stroke","#ec008b")
+        .transition()
+        .delay(stg_delay)
+        .duration(stg_dur)
+        .attrTween('d', pathReveal_stg1)
+        .transition()
+        .delay(stg_delay * 2)
+        .style("stroke","black");;
 
     // Reveal Annotations - Stage 1
     var annot1 = chart.svg
@@ -115,7 +120,7 @@ function directedScatterPlot(data) {
     annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF  collapses after")
     annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("1996 reform.")
     annot1.transition().delay(stg_delay).duration(stg_dur).attr("opacity", 1)
-    .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
+    .transition().delay(stg_delay * 2).duration(stg_dur).attr("opacity", 0).remove();
 
     // Note that families in poverty reduced too. Or maybe this is because of the new qualifications?
 
@@ -123,10 +128,14 @@ function directedScatterPlot(data) {
     // Reveal Path - Stage 2
     chart.svg.append("path")
         .attr("class", "line")
+        .style("stroke","#ec008b")
         .transition()
         .delay(stg_delay * 3 + stg_dur*1.5)
         .duration(stg_dur)
-        .attrTween('d', pathReveal_stg2);
+        .attrTween('d', pathReveal_stg2)
+        .transition()
+        .delay(stg_delay * 2 + stg_dur)
+        .style("stroke","black");
 
     // Reveal Annotations - Stage 2
     var annot2 = chart.svg
@@ -140,20 +149,24 @@ function directedScatterPlot(data) {
     annot2.append("tspan").html("The 2001 recession")
     annot2.append("tspan").attr("x","0").attr("dy","1.2em").html("pushed more families")
     annot2.append("tspan").attr("x","0").attr("dy","1.2em").html("into poverty.")
-    annot2.transition().delay(stg_delay * 4 + stg_dur ).duration(stg_dur).attr("opacity", 1)
+    annot2.transition().delay(stg_delay * 4).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
 
     // Reveal Path - Stage 3
     chart.svg.append("path")
         .attr("class", "line")
+        .style("stroke","#ec008b")
         .transition()
         .delay(stg_delay * 6 + stg_dur * 2)
         .duration(stg_dur)
-        .attrTween('d', pathReveal_stg3);
+        .attrTween('d', pathReveal_stg3)
+        .transition()
+        .delay(stg_delay * 2 + stg_dur)
+        .style("stroke","black");
 
     // Reveal Annotations - Stage 3
     var annot3 = chart.svg
-        .append("g").attr("transform", "translate(150,350)")
+        .append("g").attr("transform", "translate(200,350)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -166,9 +179,21 @@ function directedScatterPlot(data) {
     annot3.transition().delay(stg_delay * 6 + stg_dur * 2 ).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
 
+    // Reveal Path - Stage 4
+    chart.svg.append("path")
+        .attr("class", "line")
+        .style("stroke","#ec008b")
+        .transition()
+        .delay(stg_delay * 8 + stg_dur * 4)
+        .duration(stg_dur)
+        .attrTween('d', pathReveal_stg4)
+        .transition()
+        .delay(stg_delay * 2 + stg_dur)
+        .style("stroke","black");
+
     // Reveal Annotations - Stage 4
     var annot4 = chart.svg
-        .append("g").attr("transform", "translate(450,350)")
+        .append("g").attr("transform", "translate(250,350)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -177,9 +202,11 @@ function directedScatterPlot(data) {
 
     annot4.append("tspan").html("And the 2008")
     annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("recession created many")
-    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("new poor families, with no TANF.")
-    annot4.transition().delay(stg_delay * 8 + stg_dur * 3).duration(stg_dur).attr("opacity", 1)
+    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("new poor families")
+    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("with no TANF.")
+    annot4.transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
+
 
 
     function pathReveal_stg1() {
@@ -209,7 +236,7 @@ function directedScatterPlot(data) {
     function pathReveal_stg4() {
         return function(t) {
             return line(data
-                .filter(function(d) { return d.year >= 2008 ;})
+                .filter(function(d) { return d.year >= 2007 ;})
                 .slice(0, chart.interpolate(t)));
         };
     };    
