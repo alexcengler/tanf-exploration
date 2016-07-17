@@ -374,5 +374,7 @@ function rollingChoropleth(data, states){
     // Path Reveals need to be a function
     // Why won't the two containers stay next to each other?
     // Make tick marks percentages on color scale?
+    // Does my color scale match my color axis? Is the color labeling really equivalent to the d3 appearing color. Maybe. Maybe not.
+    // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
 
 };
