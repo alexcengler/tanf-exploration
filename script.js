@@ -314,13 +314,48 @@ function rollingChoropleth(data, states){
         .append("g")
         .attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
 
-    console.log(states);
-    console.log(states.features);
-    console.log(states.features[0].properties);    
+
+    var color_range = ["#d53e4f","#f46d43","#fdae61","#fee08b","#ffffbf","#e6f598","#abdda4","#66c2a5","#3288bd","#3288bd"];
+    var data_bins = [0,10,20,30,40,50,60,80,90,100];
 
     chart.colorScale = d3.scaleLinear()
-        .domain([0,100])
-        .range(["red", "green"]);
+        .domain(data_bins)
+        .range(color_range);
+
+    chart.x = d3.scaleLinear()
+        .domain([0, 100])
+        .range([0, width])
+
+    chart.xAxis = d3.axisTop(chart.x).ticks(20)
+
+    chart.svg.append("g")
+        .attr("transform", "translate(0,25)")
+        .attr("class", "axis")
+        .call(chart.xAxis);
+
+    chart.defs = chart.svg.append('svg:defs')
+
+    for (i = 0; i < data_bins.length - 1; i++) { 
+        var gradient = chart.defs
+            .append('svg:linearGradient')
+            .attr('id', function() { return 'gradient' + i})
+
+        gradient.append('svg:stop')
+            .attr('stop-color', function(d) { return color_range[i] }) // colorScale(data_bins[i])
+            .attr('offset', '0%')
+
+        gradient.append('svg:stop')
+            .attr('stop-color', function(d) { return color_range[i + 1] }) // colorScale(data_bins[i + 1])
+            .attr('offset', '1000%')
+
+        chart.svg.append('svg:rect')
+            .attr('id', function(){ return'gradient' + i + '-bar'})
+            .attr('fill', function(){ return 'url(#gradient' + i + ')'})
+            .attr('height', 25)
+            .attr('y', 25)
+            .attr('x', function(){ return chart.x(data_bins[i]) })
+            .attr('width', function(){ return chart.x(data_bins[i+1] - data_bins[i])});
+    };
 
     chart.svg.selectAll("path")
         .data(states.features)
@@ -333,9 +368,11 @@ function rollingChoropleth(data, states){
         })
     .transition().duration(5000)
         .attr("fill", function(d){
-            return chart.colorScale(d.properties.value2013);
+            return chart.colorScale(d.properties.value_2013);
         });
 
+    // Path Reveals need to be a function
+    // Why won't the two containers stay next to each other?
+    // Make tick marks percentages on color scale?
+
 };
-
-
