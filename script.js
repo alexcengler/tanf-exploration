@@ -20,21 +20,23 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 400; // 800
-var stg_delay = 700; // 1400
+var stg_dur = 800; // 800
+var stg_delay = 1400; // 1400
+
+var width = 625 - margin.left - margin.right;
+var height = 625 - margin.top - margin.bottom;
 
 
 function directedScatterPlot(data) {
     
     var chart = this;
 
-    chart.width = 625 - margin.left - margin.right;
-    chart.height = 625 - margin.top - margin.bottom;
+
 
     chart.svg = d3.select("#chart1")
     	.append("svg")
-    	.attr("width", chart.width + margin.left + margin.right)
-    	.attr("height", chart.height + margin.top + margin.bottom)
+    	.attr("width", width + margin.left + margin.right)
+    	.attr("height", height + margin.top + margin.bottom)
     	.append("g")
     	.attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
 
@@ -51,7 +53,7 @@ function directedScatterPlot(data) {
 	var yAxis = d3.axisLeft(chart.yScale).ticks(5, "s");
 
     chart.svg.append("g")
-    	.attr("transform", function(){ return "translate(0," + chart.height + ")" })
+    	.attr("transform", function(){ return "translate(0," + height + ")" })
     	.attr("class", "axis")
     	.call(xAxis);
 
@@ -62,15 +64,15 @@ function directedScatterPlot(data) {
 	chart.svg
 		.append("text")
 		.attr("transform", "rotate(-90)")
-		.attr("x", -(chart.height / 2))
+		.attr("x", -(height / 2))
 		.attr("y", -(margin.left * 0.75))
 	    .style("text-anchor", "middle")
 		.html("Families with Children on TANF");
 
 	chart.svg
 		.append("text")
-		.attr("x", chart.width / 2)
-		.attr("y", chart.height + margin.bottom * 0.75)
+		.attr("x", width / 2)
+		.attr("y", height + margin.bottom * 0.75)
 		.style("text-anchor", "middle")
 		.html("Impoverished Families with Children");
 
@@ -155,7 +157,7 @@ function directedScatterPlot(data) {
         .attr("class", "annotation");
 
     annot1.append("tspan").html("Families enrolled in")
-    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF drops by over")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF dropped by over")
     annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("50% after 1996 reform.")
     annot1.transition().delay(stg_delay).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2).duration(stg_dur).attr("opacity", 0).remove();
@@ -299,21 +301,20 @@ function rollingChoropleth(data, states){
             break;
             }
         }
-    }
+    };
 
     chart.projection = d3.geoAlbersUsa()
         .translate([width/2, height/2])
-        .scale([700]); 
+        .scale([800]); 
 
     chart.path = d3.geoPath().projection(chart.projection);
 
     chart.svg = d3.select("#chart2")
         .append("svg")
-        .attr("width", chart.width + margin.left + margin.right)
-        .attr("height", chart.height + margin.top + margin.bottom)
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
-
 
     var color_range = ["#d53e4f","#f46d43","#fdae61","#fee08b","#ffffbf","#e6f598","#abdda4","#66c2a5","#3288bd","#3288bd"];
     var data_bins = [0,10,20,30,40,50,60,80,90,100];
@@ -335,7 +336,7 @@ function rollingChoropleth(data, states){
 
     chart.defs = chart.svg.append('svg:defs')
 
-    for (i = 0; i < data_bins.length - 1; i++) { 
+    for (i = 0; i < data_bins.length -1 ; i++) { 
         var gradient = chart.defs
             .append('svg:linearGradient')
             .attr('id', function() { return 'gradient' + i})
@@ -366,7 +367,7 @@ function rollingChoropleth(data, states){
         .attr("fill", function(d){
             return chart.colorScale(d.properties.value_1994);
         })
-    .transition().duration(5000)
+    .transition().duration(stg_delay * 10 + stg_dur * 5)
         .attr("fill", function(d){
             return chart.colorScale(d.properties.value_2013);
         });
@@ -376,5 +377,6 @@ function rollingChoropleth(data, states){
     // Make tick marks percentages on color scale?
     // Does my color scale match my color axis? Is the color labeling really equivalent to the d3 appearing color. Maybe. Maybe not.
     // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
+    //how did i make alabam disappear?
 
 };
