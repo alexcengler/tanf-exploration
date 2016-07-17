@@ -31,18 +31,16 @@ function directedScatterPlot(data) {
     	.attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
 
     chart.xScale = d3.scaleLinear()
-      	.domain(d3.extent(data, function (d) { return d.fam_child_pov; }))
+      	.domain([4500000,7500000])
     	.range([0, width])
     	.nice();
 
     chart.yScale = d3.scaleLinear()
-      	.domain(d3.extent(data, function (d) { return d.tanf_fam }))
+      	.domain([1500000, 4500000])
     	.range([height, 0]);
 
-    var xAxis = d3.axisBottom(chart.xScale).ticks(5);
-	var yAxis = d3.axisLeft(chart.yScale).ticks(5);
-
-	// 45 degree angle scale? since above is impossible (probably, check data?)
+    var xAxis = d3.axisBottom(chart.xScale).ticks(5, "s");
+	var yAxis = d3.axisLeft(chart.yScale).ticks(5, "s");
 
     chart.svg.append("g")
     	.attr("transform", function(){ return "translate(0," + chart.height + ")" })
@@ -117,16 +115,13 @@ function directedScatterPlot(data) {
         .duration(500)
         .attr("opacity", 1);
 
-
-
-
     // Directed Line
     chart.interpolate = d3.scaleQuantile()
         .domain([0,1])
         .range(d3.range(1, data.length + 1));   
 
-    var stg_dur = 800
-        stg_delay = 1400
+    var stg_dur = 400 // 800
+        stg_delay = 700 // 1400
 
     var line = d3.line()
         .x(function(d) { return xScale(d.fam_child_pov); })
@@ -147,7 +142,7 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 1
     var annot1 = chart.svg
-        .append("g").attr("transform", "translate(20,80)")
+        .append("g").attr("transform", "translate(40,80)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -177,7 +172,7 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 2
     var annot2 = chart.svg
-        .append("g").attr("transform", "translate(150,330)")
+        .append("g").attr("transform", "translate(200,300)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -204,16 +199,16 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 3
     var annot3 = chart.svg
-        .append("g").attr("transform", "translate(200,330)")
+        .append("g").attr("transform", "translate(240,300)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
         .attr("opacity", 0)
         .attr("class", "annotation");
 
-    annot3.append("tspan").html("The recovery didn't")
-    annot3.append("tspan").attr("x","0").attr("dy","1.2em").html("reduce the number")
-    annot3.append("tspan").attr("x","0").attr("dy","1.2em").html("of families in poverty.")
+    annot3.append("tspan").html("TANF enrollment drops")
+    annot3.append("tspan").attr("x","0").attr("dy","1.2em").html("during the recovery,")
+    annot3.append("tspan").attr("x","0").attr("dy","1.2em").html("but poverty doesn't.")
     annot3.transition().delay(stg_delay * 6 + stg_dur * 2 ).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
 
@@ -231,17 +226,17 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 4
     var annot4 = chart.svg
-        .append("g").attr("transform", "translate(250,350)")
+        .append("g").attr("transform", "translate(280,300)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
         .attr("opacity", 0)
         .attr("class", "annotation");
 
-    annot4.append("tspan").html("And the 2008")
-    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("recession created many")
-    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("new poor families")
-    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("with no TANF.")
+    annot4.append("tspan").html("The 2008 recession")
+    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("increased the number of")
+    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("impoverished families with ")
+    annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("no support from TANF.")
     annot4.transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
 
@@ -279,7 +274,7 @@ function directedScatterPlot(data) {
         };
     };    
     // Year formatting - get rid of first two digits: '99 '00 '01 '02
-    // Tick Formatting, should just be millions
+    // 45 degree angle scale? since above is impossible (probably, check data?)
 
 };	
 
