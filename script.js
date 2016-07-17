@@ -78,7 +78,7 @@ function directedScatterPlot(data) {
     	.attr("r", 0)
     	.attr("cx", function(d){ return chart.xScale(d.fam_child_pov) })
     	.attr("cy", function(d){ return chart.yScale(d.tanf_fam) })
-    	.transition()
+    .transition()
     	.delay(function (d,i){ return (i * 50) })
     	.duration(500)
     	.attr("r", 8);
@@ -89,14 +89,35 @@ function directedScatterPlot(data) {
         .append("text")
         .attr("class", "year_note")
         .attr("opacity", 0)
-        .attr("fill", "black")
-        .text(function(d){ return d.year })
         .attr("x", function(d){ return chart.xScale(d.fam_child_pov) })
         .attr("y", function(d){ return chart.yScale(d.tanf_fam) })
-        .transition()
+        .attr("dx", function(d){ 
+            if (d.year <= 2000){ return 10 }
+            else if (d.year < 2004) { return 2 }
+            else if (d.year < 2006) { return 10 }
+            else if (d.year < 2008) { return -40 }
+            else if (d.year < 2011) { return 2 }
+            else if (d.year < 2013) { return 10 }
+            else if (d.year == 2013) { return -40 }
+            else if (d.year == 2014) { return 10 }
+        })
+        .attr("dy", function(d){ 
+            if (d.year <= 2000){ return 3 }
+            else if (d.year < 2004) { return -10 }
+            else if (d.year < 2006) { return 5 }
+            else if (d.year < 2008) { return 5 }
+            else if (d.year < 2011) { return -10 }
+            else if (d.year < 2013) { return 3 }
+            else if (d.year == 2013) { return 5 }
+            else if (d.year == 2014) { return -3 }
+        })
+        .text(function(d){ return d.year })
+    .transition()
         .delay(function (d,i){ return (i * 50) })
         .duration(500)
         .attr("opacity", 1);
+
+
 
 
     // Directed Line
@@ -106,7 +127,6 @@ function directedScatterPlot(data) {
 
     var stg_dur = 800
         stg_delay = 1400
-
 
     var line = d3.line()
         .x(function(d) { return xScale(d.fam_child_pov); })
@@ -157,7 +177,7 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 2
     var annot2 = chart.svg
-        .append("g").attr("transform", "translate(150,350)")
+        .append("g").attr("transform", "translate(150,330)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -184,7 +204,7 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 3
     var annot3 = chart.svg
-        .append("g").attr("transform", "translate(200,350)")
+        .append("g").attr("transform", "translate(200,330)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
