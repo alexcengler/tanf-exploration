@@ -280,6 +280,61 @@ function directedScatterPlot(data) {
 
 function rollingChoropleth(data, states){
 
+    var chart = this;
+
+    for (var i = 0; i < data.length; i++) {
+
+        var dataState = data[i].State;
+        var value_1994 = data[i].y1994;
+        var value_2013 = data[i].y2013;
+
+        // Find the corresponding state inside the GeoJSON
+        for (var j = 0; j < states.features.length; j++)  {
+            var jsonState = states.features[j].properties.name;
+
+            if (dataState == jsonState) {
+            states.features[j].properties.value_1994 = value_1994; 
+            states.features[j].properties.value_2013 = value_2013; 
+
+            break;
+            }
+        }
+    }
+
+    chart.projection = d3.geoAlbersUsa()
+        .translate([width/2, height/2])
+        .scale([700]); 
+
+    chart.path = d3.geoPath().projection(chart.projection);
+
+    chart.svg = d3.select("#chart2")
+        .append("svg")
+        .attr("width", chart.width + margin.left + margin.right)
+        .attr("height", chart.height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
+
+    console.log(states);
+    console.log(states.features);
+    console.log(states.features[0].properties);    
+
+    chart.colorScale = d3.scaleLinear()
+        .domain([0,100])
+        .range(["red", "green"]);
+
+    chart.svg.selectAll("path")
+        .data(states.features)
+        .enter()
+        .append("path")
+        .attr("class", "map")
+        .attr("d", path)
+        .attr("fill", function(d){
+            return chart.colorScale(d.properties.value_1994);
+        })
+    .transition().duration(5000)
+        .attr("fill", function(d){
+            return chart.colorScale(d.properties.value2013);
+        });
 
 };
 
