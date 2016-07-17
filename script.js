@@ -319,7 +319,7 @@ function rollingChoropleth(data, states){
         .append("g")
         .attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
 
-    var color_range = ["#d53e4f","#f46d43","#fdae61","#fee08b","#ffffbf","#e6f598","#abdda4","#66c2a5","#3288bd","#3288bd"];
+    var color_range = ["#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4"];
     var data_bins = [0,10,20,30,40,50,60,80,90,100];
 
     chart.colorScale = d3.scaleLinear()
@@ -350,7 +350,7 @@ function rollingChoropleth(data, states){
 
         gradient.append('stop')
             .attr('stop-color', function(d) { return color_range[i + 1] }) // colorScale(data_bins[i + 1])
-            .attr('offset', '1000%')
+            .attr('offset', '100%')
 
         chart.svg.append("g").attr("transform", "translate(0,60)").append('rect')
             .attr('id', function(){ return'gradient' + i + '-bar'})
@@ -367,23 +367,24 @@ function rollingChoropleth(data, states){
         .append("path")
         .attr("class", "map")
         .attr("d", path)
-        .attr("fill", function(d){
+
+        .style("fill", function(d){
             return chart.colorScale(d.properties.value_1994);
         })
-    .transition().duration(stg_delay * 10 + stg_dur * 5)
-        .styleTween()
-        .attr("fill", function(d){
-            return chart.colorScale(d.properties.value_2013);
+        .transition().duration(stg_delay * 10 + stg_dur * 5)
+        .styleTween("fill", function(d,i){
+            var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
+            return function(t){
+                var value = interpolator(t)
+                return chart.colorScale(value)
+            }
         });
 
     // Path Reveals need to be a function
-
-    // Why won't the two containers stay next to each other? My responsiveness is horrible.
     // Make tick marks percentages on color scale?
-
-    // Does my color scale match my color axis? Is the color labeling really equivalent to the d3 appearing color. Maybe. Maybe not.
-
     // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
-    // do you ever need svg:gradient svg:rect ? What's the colon doing?
+
+    // need full data for map soon
+    // minimize the directed scatterplot, then pull map up, 
 
 };
