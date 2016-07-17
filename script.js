@@ -2,28 +2,36 @@
 
 d3.queue()
   .defer(d3.json, 'data/fam-w-children-tanf-ratio.json')
+  .defer(d3.json, 'data/state_tanf_to_poverty_ratio.json')
+  .defer(d3.json, 'data/us-states.json')
   .awaitAll(function (error, results) {
     if (error) { throw error; }
+    
     directedScatterPlot(results[0]);
+    rollingChoropleth(results[1], results[2]);
+
   });
 
 
 var margin = {
-	left: 100,
+	left: 75,
 	right: 50,
 	top: 50,
-	bottom: 50
+	bottom: 75
 };
+
+var stg_dur = 400; // 800
+var stg_delay = 700; // 1400
 
 
 function directedScatterPlot(data) {
     
     var chart = this;
 
-    chart.width = 600 - margin.left - margin.right;
-    chart.height = 600 - margin.top - margin.bottom;
+    chart.width = 625 - margin.left - margin.right;
+    chart.height = 625 - margin.top - margin.bottom;
 
-    chart.svg = d3.select("#chart")
+    chart.svg = d3.select("#chart1")
     	.append("svg")
     	.attr("width", chart.width + margin.left + margin.right)
     	.attr("height", chart.height + margin.top + margin.bottom)
@@ -120,9 +128,6 @@ function directedScatterPlot(data) {
         .domain([0,1])
         .range(d3.range(1, data.length + 1));   
 
-    var stg_dur = 400 // 800
-        stg_delay = 700 // 1400
-
     var line = d3.line()
         .x(function(d) { return xScale(d.fam_child_pov); })
         .y(function(d) { return yScale(d.tanf_fam); })
@@ -150,13 +155,10 @@ function directedScatterPlot(data) {
         .attr("class", "annotation");
 
     annot1.append("tspan").html("Families enrolled in")
-    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF  collapses after")
-    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("1996 reform.")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF drops by over")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("50% after 1996 reform.")
     annot1.transition().delay(stg_delay).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2).duration(stg_dur).attr("opacity", 0).remove();
-
-    // Note that families in poverty reduced too. Or maybe this is because of the new qualifications?
-
 
     // Reveal Path - Stage 2
     chart.svg.append("path")
@@ -172,7 +174,7 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 2
     var annot2 = chart.svg
-        .append("g").attr("transform", "translate(200,300)")
+        .append("g").attr("transform", "translate(230,300)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -199,7 +201,7 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 3
     var annot3 = chart.svg
-        .append("g").attr("transform", "translate(240,300)")
+        .append("g").attr("transform", "translate(270,300)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -226,7 +228,7 @@ function directedScatterPlot(data) {
 
     // Reveal Annotations - Stage 4
     var annot4 = chart.svg
-        .append("g").attr("transform", "translate(280,300)")
+        .append("g").attr("transform", "translate(310,300)")
         .append("text")
         .attr("x", 0)
         .attr("y", 0)
@@ -239,7 +241,6 @@ function directedScatterPlot(data) {
     annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("no support from TANF.")
     annot4.transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
-
 
 
     function pathReveal_stg1() {
@@ -273,8 +274,13 @@ function directedScatterPlot(data) {
                 .slice(0, chart.interpolate(t)));
         };
     };    
-    // Year formatting - get rid of first two digits: '99 '00 '01 '02
-    // 45 degree angle scale? since above is impossible (probably, check data?)
 
 };	
+
+
+function rollingChoropleth(data, states){
+
+
+};
+
 
