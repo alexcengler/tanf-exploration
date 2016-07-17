@@ -31,8 +31,6 @@ function directedScatterPlot(data) {
     
     var chart = this;
 
-
-
     chart.svg = d3.select("#chart1")
     	.append("svg")
     	.attr("width", width + margin.left + margin.right)
@@ -245,6 +243,11 @@ function directedScatterPlot(data) {
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
 
 
+    // function filter (startYear, endYear) {
+    //     this.filter(function (d) { return d.year >= 2000 && d.year < 2005; })
+    // }
+
+
     function pathReveal_stg1() {
         return function(t) {
             return line(data
@@ -305,7 +308,7 @@ function rollingChoropleth(data, states){
 
     chart.projection = d3.geoAlbersUsa()
         .translate([width/2, height/2])
-        .scale([800]); 
+        .scale([width * 1.5]); 
 
     chart.path = d3.geoPath().projection(chart.projection);
 
@@ -330,26 +333,26 @@ function rollingChoropleth(data, states){
     chart.xAxis = d3.axisTop(chart.x).ticks(20)
 
     chart.svg.append("g")
-        .attr("transform", "translate(0,25)")
+        .attr("transform", "translate(0,91)")
         .attr("class", "axis")
         .call(chart.xAxis);
 
-    chart.defs = chart.svg.append('svg:defs')
+    chart.defs = chart.svg.append('defs')
 
     for (i = 0; i < data_bins.length -1 ; i++) { 
         var gradient = chart.defs
-            .append('svg:linearGradient')
+            .append('linearGradient')
             .attr('id', function() { return 'gradient' + i})
 
-        gradient.append('svg:stop')
+        gradient.append('stop')
             .attr('stop-color', function(d) { return color_range[i] }) // colorScale(data_bins[i])
             .attr('offset', '0%')
 
-        gradient.append('svg:stop')
+        gradient.append('stop')
             .attr('stop-color', function(d) { return color_range[i + 1] }) // colorScale(data_bins[i + 1])
             .attr('offset', '1000%')
 
-        chart.svg.append('svg:rect')
+        chart.svg.append("g").attr("transform", "translate(0,60)").append('rect')
             .attr('id', function(){ return'gradient' + i + '-bar'})
             .attr('fill', function(){ return 'url(#gradient' + i + ')'})
             .attr('height', 25)
@@ -358,7 +361,7 @@ function rollingChoropleth(data, states){
             .attr('width', function(){ return chart.x(data_bins[i+1] - data_bins[i])});
     };
 
-    chart.svg.selectAll("path")
+    chart.svg.append("g").attr("transform", "translate(0,60)").selectAll("path")
         .data(states.features)
         .enter()
         .append("path")
@@ -368,15 +371,19 @@ function rollingChoropleth(data, states){
             return chart.colorScale(d.properties.value_1994);
         })
     .transition().duration(stg_delay * 10 + stg_dur * 5)
+        .styleTween()
         .attr("fill", function(d){
             return chart.colorScale(d.properties.value_2013);
         });
 
     // Path Reveals need to be a function
-    // Why won't the two containers stay next to each other?
+
+    // Why won't the two containers stay next to each other? My responsiveness is horrible.
     // Make tick marks percentages on color scale?
+
     // Does my color scale match my color axis? Is the color labeling really equivalent to the d3 appearing color. Maybe. Maybe not.
+
     // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
-    //how did i make alabam disappear?
+    // do you ever need svg:gradient svg:rect ? What's the colon doing?
 
 };
