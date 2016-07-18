@@ -346,7 +346,7 @@ function rollingChoropleth(data, states){
         .domain([0, 100])
         .range([0, width])
 
-    chart.xAxis = d3.axisTop(chart.x).ticks(20)
+    chart.xAxis = d3.axisTop( chart.x).ticks(20)
 
     chart.svg.append("g")
         .attr("transform", "translate(0,51)")
@@ -377,13 +377,36 @@ function rollingChoropleth(data, states){
             .attr('width', function(){ return chart.x(data_bins[i+1] - data_bins[i])});
     };
 
+
+    var map_tooltip = d3.select("body").append("div")   
+        .attr("class", "tooltip")               
+        .style("opacity", 0);
+
     chart.svg.append("g").attr("transform", "translate(0,30)").selectAll("path")
         .data(states.features)
         .enter()
         .append("path")
         .attr("class", "map")
         .attr("d", path)
+        .on("mouseover", function(d) {   
 
+            map_tooltip.transition()        
+                .duration(200)      
+                .style("opacity", 1)
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");
+
+            map_tooltip.append("p")
+                .attr("class", "tooltip_text")
+                .html( d.properties.name + ": " + d.properties.value_2013 + "%" )
+
+        })        
+        .on("mouseout", function(d) {       
+            map_tooltip.html("")
+                .transition()        
+                .duration(500)      
+                .style("opacity", 0)
+        })
         .style("fill", function(d){
             return chart.colorScale(d.properties.value_1994);
         })
@@ -396,6 +419,9 @@ function rollingChoropleth(data, states){
             }
         });
 
+
+
+
     // restart button
 
     // Path Reveals need to be a function
@@ -406,5 +432,9 @@ function rollingChoropleth(data, states){
 
     // need full data for map soon
     // minimize the directed scatterplot, then pull map up, 
+
+    //selecting a state shows a specific directed scatterplot for that state?
+
+
 
 };
