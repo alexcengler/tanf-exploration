@@ -319,6 +319,22 @@ function rollingChoropleth(data, states){
         .append("g")
         .attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
 
+    // Title and interpolating year.
+
+    var title_text = chart.svg.append("g").attr("transform", "translate(0,0)")
+
+    title_text.append("text")
+        .attr("x", width/2)
+        .text("State by state TANF-to-Poverty Ratio")
+        .attr("text-anchor", "middle")
+
+    title_text.append("text")
+        .attr("x", width/2)
+        .attr("y", 20)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .html("Percent of Poor Families Receiving TANF")
+
     var color_range = ["#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4"];
     var data_bins = [0,10,20,30,40,50,60,80,90,100];
 
@@ -333,7 +349,7 @@ function rollingChoropleth(data, states){
     chart.xAxis = d3.axisTop(chart.x).ticks(20)
 
     chart.svg.append("g")
-        .attr("transform", "translate(0,91)")
+        .attr("transform", "translate(0,51)")
         .attr("class", "axis")
         .call(chart.xAxis);
 
@@ -352,7 +368,7 @@ function rollingChoropleth(data, states){
             .attr('stop-color', function(d) { return color_range[i + 1] }) // colorScale(data_bins[i + 1])
             .attr('offset', '100%')
 
-        chart.svg.append("g").attr("transform", "translate(0,60)").append('rect')
+        chart.svg.append("g").attr("transform", "translate(0,20)").append('rect')
             .attr('id', function(){ return'gradient' + i + '-bar'})
             .attr('fill', function(){ return 'url(#gradient' + i + ')'})
             .attr('height', 25)
@@ -361,7 +377,7 @@ function rollingChoropleth(data, states){
             .attr('width', function(){ return chart.x(data_bins[i+1] - data_bins[i])});
     };
 
-    chart.svg.append("g").attr("transform", "translate(0,60)").selectAll("path")
+    chart.svg.append("g").attr("transform", "translate(0,30)").selectAll("path")
         .data(states.features)
         .enter()
         .append("path")
@@ -380,8 +396,12 @@ function rollingChoropleth(data, states){
             }
         });
 
+    // restart button
+
     // Path Reveals need to be a function
+
     // Make tick marks percentages on color scale?
+
     // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
 
     // need full data for map soon
