@@ -7,9 +7,16 @@ d3.queue()
   .awaitAll(function (error, results) {
     if (error) { throw error; }
     
-    directedScatterPlot(results[0]);
-    rollingChoropleth(results[1], results[2]);
+    scatter = new directedScatterPlot(results[0]);
+    scatter.update(results[0]);
 
+    map = new rollingChoropleth(results[1], results[2]);
+    map.update();
+
+    d3.select('#restart').on('click', function () {
+        scatter.update(results[0]);
+        map.update();
+    });
   });
 
 
@@ -74,10 +81,19 @@ function directedScatterPlot(data) {
 		.style("text-anchor", "middle")
 		.html("Impoverished Families with Children");
 
-    var full = data.slice()
+};
 
-    chart.svg
-    	.selectAll(".circ")
+directedScatterPlot.prototype.update = function (data) {
+
+    var chart = this;
+    var full = data.slice();
+
+    chart.svg.selectAll(".circ").remove();
+    chart.svg.selectAll("path").remove();
+    chart.svg.selectAll(".year_note").remove();
+    chart.svg.selectAll(".annotation").remove();
+
+    chart.svg.selectAll(".circ")
     	.data(full, function(d){ return d.year }).enter()
     	.append("circle")
     	.attr("class", "circ")
@@ -89,8 +105,7 @@ function directedScatterPlot(data) {
     	.duration(500)
     	.attr("r", 8);
 
-    chart.svg
-        .selectAll(".year_note")
+    chart.svg.selectAll(".year_note")
         .data(full).enter()
         .append("text")
         .attr("class", "year_note")
@@ -129,8 +144,8 @@ function directedScatterPlot(data) {
         .range(d3.range(1, data.length + 1));   
 
     var line = d3.line()
-        .x(function(d) { return xScale(d.fam_child_pov); })
-        .y(function(d) { return yScale(d.tanf_fam); })
+        .x(function(d) { return chart.xScale(d.fam_child_pov); })
+        .y(function(d) { return chart.yScale(d.tanf_fam); })
         .curve(d3.curveCatmullRom.alpha(0.7));
 
     // Reveal Path - Stage 1
@@ -283,6 +298,8 @@ function directedScatterPlot(data) {
 };	
 
 
+
+
 function rollingChoropleth(data, states){
 
     var chart = this;
@@ -342,11 +359,11 @@ function rollingChoropleth(data, states){
         .domain(data_bins)
         .range(color_range);
 
-    chart.x = d3.scaleLinear()
+    chart.xScale = d3.scaleLinear()
         .domain([0, 100])
         .range([0, width])
 
-    chart.xAxis = d3.axisTop( chart.x).ticks(20)
+    chart.xAxis = d3.axisTop(chart.xScale).ticks(20)
 
     chart.svg.append("g")
         .attr("transform", "translate(0,51)")
@@ -373,22 +390,22 @@ function rollingChoropleth(data, states){
             .attr('fill', function(){ return 'url(#gradient' + i + ')'})
             .attr('height', 25)
             .attr('y', 25)
-            .attr('x', function(){ return chart.x(data_bins[i]) })
-            .attr('width', function(){ return chart.x(data_bins[i+1] - data_bins[i])});
+            .attr('x', function(){ return chart.xScale(data_bins[i]) })
+            .attr('width', function(){ return chart.xScale(data_bins[i+1] - data_bins[i])});
     };
-
 
     var map_tooltip = d3.select("body").append("div")   
         .attr("class", "tooltip")               
         .style("opacity", 0);
 
-    chart.svg.append("g").attr("transform", "translate(0,30)").selectAll("path")
+    chart.map = chart.svg.append("g").attr("transform", "translate(0,30)").selectAll("path")
         .data(states.features)
         .enter()
         .append("path")
         .attr("class", "map")
-        .attr("d", path)
-        .on("mouseover", function(d) {   
+        .attr("d", chart.path);
+
+        chart.map.on("mouseover", function(d) {   
 
             map_tooltip.transition()        
                 .duration(200)      
@@ -407,7 +424,14 @@ function rollingChoropleth(data, states){
                 .duration(500)      
                 .style("opacity", 0)
         })
-        .style("fill", function(d){
+
+};
+
+rollingChoropleth.prototype.update = function () {
+
+    var chart = this;
+
+    chart.map.style("fill", function(d){
             return chart.colorScale(d.properties.value_1994);
         })
         .transition().duration(stg_delay * 10 + stg_dur * 5)
@@ -416,13 +440,10 @@ function rollingChoropleth(data, states){
             return function(t){
                 var value = interpolator(t)
                 return chart.colorScale(value)
-            }
-        });
+        }
+     });
+};
 
-
-
-
-    // restart button
 
     // Path Reveals need to be a function
 
@@ -437,4 +458,3 @@ function rollingChoropleth(data, states){
 
 
 
-};
