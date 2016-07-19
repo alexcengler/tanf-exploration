@@ -413,21 +413,26 @@ rollingChoropleth.prototype.update = function () {
 
     var chart = this;
 
-    chart.map.style("fill", function(d){
+    chart.map
+        .style("fill", function(d){
             return chart.colorScale(d.properties.value_1994);
         })
         .transition().duration(stg_delay * 10 + stg_dur * 5)
+
         .styleTween("fill", function(d,i){
+
             var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
             return function(t){
                 var value = interpolator(t)
                 return chart.colorScale(value)
-        }
-     });
+            };
+        });
 };
 
-
     // Make tick marks percentages on color scale?
+
+    // Add a rolling ticker of national TANF-to-POVERTY Ratio?
+
 
     // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
 
@@ -436,5 +441,5 @@ rollingChoropleth.prototype.update = function () {
 
     //selecting a state shows a specific directed scatterplot for that state?
 
-
+    // options for state by state explanations of policy?
 
