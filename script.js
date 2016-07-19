@@ -58,15 +58,6 @@ function DirectedScatterPlot(data) {
     chart.xAxis = d3.axisBottom(chart.xScale).ticks(5, "s");
 	chart.yAxis = d3.axisLeft(chart.yScale).ticks(5, "s");
 
-    chart.svg.append("g")
-    	.attr("transform", function(){ return "translate(0," + height + ")" })
-    	.attr("class", "axis")
-    	.call(chart.xAxis);
-
-    chart.svg.append("g")
-    	.attr("class", "axis")
-    	.call(chart.yAxis);
-
 	chart.svg
 		.append("text")
         .attr("class", "yAxisLabel")
@@ -102,6 +93,14 @@ DirectedScatterPlot.prototype.update = function (data) {
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
 
+    chart.svg.append("g")
+        .attr("transform", function(){ return "translate(0," + height + ")" })
+        .attr("class", "axis")
+        .call(chart.xAxis);
+
+    chart.svg.append("g")
+        .attr("class", "axis")
+        .call(chart.yAxis);
 
     chart.svg.selectAll(".circ")
     	.data(full, function(d){ return d.year }).enter()
