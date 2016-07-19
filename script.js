@@ -341,18 +341,6 @@ DirectedScatterPlot.prototype.minimize = function () {
 
 function rollingChoropleth(data, states){
 
-    var tickArea = d3.select("#chart1")
-        .append("svg")
-        .attr("id", "yearTicker")
-        .attr("width", (width + margin.left + margin.right)/2)
-        .attr("height", (height + margin.top + margin.bottom)/2) 
-
-    var tickText = tickArea.append("text")
-        .text("1995")
-        .attr("text-anchor", "middle")
-        .attr("x", (height + margin.top + margin.bottom)/4)
-        .attr("y", 50)
-
     var chart = this;
 
     for (var i = 0; i < data.length; i++) {
@@ -427,6 +415,22 @@ rollingChoropleth.prototype.clean = function () {
 rollingChoropleth.prototype.update = function () {
 
     var chart = this;
+
+    var tickArea = d3.select("#chart1")
+        .append("svg")
+        .attr("id", "yearTicker")
+        .attr("width", (width + margin.left + margin.right)/2)
+        .attr("height", (height + margin.top + margin.bottom)/2) 
+
+    var tickText = tickArea.append("text")
+        .text("1995")
+        .attr("text-anchor", "middle")
+        .attr("x", (height + margin.top + margin.bottom)/4)
+        .attr("y", 50)
+        .attr("opacity", 0)
+        .transition().duration(1000)
+        .attr("opacity", 1);
+
 
     chart.title_text.append("text")
         .text("State by state TANF-to-Poverty Ratio")
