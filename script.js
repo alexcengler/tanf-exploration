@@ -155,7 +155,12 @@ directedScatterPlot.prototype.update = function (data) {
         .transition()
         .delay(stg_delay)
         .duration(stg_dur)
-        .attrTween('d', pathReveal_stg1)
+        .attrTween('d', function() {
+            return function(t) {
+                return line(full.filter(function(d) { return d.year < 2001; })
+                    .slice(0, chart.interpolate(t) ) );
+            }
+        })
         .transition()
         .delay(stg_delay * 2)
         .style("stroke","black");;
@@ -182,7 +187,12 @@ directedScatterPlot.prototype.update = function (data) {
         .transition()
         .delay(stg_delay * 3 + stg_dur*1.5)
         .duration(stg_dur)
-        .attrTween('d', pathReveal_stg2)
+        .attrTween('d', function() {
+            return function(t) {
+                return line(full.filter(function(d) { return d.year >= 2000 && d.year < 2005; })
+                    .slice(0, chart.interpolate(t) ) );
+            }
+        })        
         .transition()
         .delay(stg_delay * 2 + stg_dur)
         .style("stroke","black");
@@ -209,7 +219,12 @@ directedScatterPlot.prototype.update = function (data) {
         .transition()
         .delay(stg_delay * 6 + stg_dur * 2)
         .duration(stg_dur)
-        .attrTween('d', pathReveal_stg3)
+        .attrTween('d', function() {
+            return function(t) {
+                return line(full.filter(function(d) { return d.year >= 2004 && d.year < 2008; })
+                    .slice(0, chart.interpolate(t) ) );
+            }
+        })       
         .transition()
         .delay(stg_delay * 2 + stg_dur)
         .style("stroke","black");
@@ -236,7 +251,12 @@ directedScatterPlot.prototype.update = function (data) {
         .transition()
         .delay(stg_delay * 8 + stg_dur * 4)
         .duration(stg_dur)
-        .attrTween('d', pathReveal_stg4)
+        .attrTween('d', function() {
+            return function(t) {
+                return line(full.filter(function(d) { return d.year >= 2007; })
+                    .slice(0, chart.interpolate(t) ) );
+            }
+        })   
         .transition()
         .delay(stg_delay * 2 + stg_dur)
         .style("stroke","black");
@@ -256,45 +276,7 @@ directedScatterPlot.prototype.update = function (data) {
     annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("no support from TANF.")
     annot4.transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
-
-
-    // function filter (startYear, endYear) {
-    //     this.filter(function (d) { return d.year >= 2000 && d.year < 2005; })
-    // }
-
-
-    function pathReveal_stg1() {
-        return function(t) {
-            return line(data
-                .filter(function(d) { return d.year < 2001;})
-                .slice(0, chart.interpolate(t)));
-        };
-    };
-
-    function pathReveal_stg2() {
-        return function(t) {
-            return line(data
-                .filter(function(d) { return d.year >= 2000 && d.year < 2005;})
-                .slice(0, chart.interpolate(t)));
-        };
-    };
-
-    function pathReveal_stg3() {
-        return function(t) {
-            return line(data
-                .filter(function(d) { return d.year >= 2004 && d.year < 2008;})
-                .slice(0, chart.interpolate(t)));
-        };
-    };
-
-    function pathReveal_stg4() {
-        return function(t) {
-            return line(data
-                .filter(function(d) { return d.year >= 2007 ;})
-                .slice(0, chart.interpolate(t)));
-        };
-    };    
-
+  
 };	
 
 
@@ -444,8 +426,6 @@ rollingChoropleth.prototype.update = function () {
      });
 };
 
-
-    // Path Reveals need to be a function
 
     // Make tick marks percentages on color scale?
 
