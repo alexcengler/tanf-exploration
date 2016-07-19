@@ -1,5 +1,6 @@
 
 
+
 d3.queue()
   .defer(d3.json, 'data/fam-w-children-tanf-ratio.json')
   .defer(d3.json, 'data/state_tanf_to_poverty_ratio.json')
@@ -11,11 +12,10 @@ d3.queue()
     scatter.update(results[0]);
 
     map = new rollingChoropleth(results[1], results[2]);
-    map.update();
 
     d3.select('#restart').on('click', function () {
         scatter.update(results[0]);
-        map.update();
+        end_directedScatterPlot()
     });
   });
 
@@ -27,8 +27,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 800; // 800
-var stg_delay = 1400; // 1400
+var stg_dur = 200; // 800
+var stg_delay = 350; // 1400
 
 var width = 625 - margin.left - margin.right;
 var height = 625 - margin.top - margin.bottom;
@@ -259,7 +259,7 @@ directedScatterPlot.prototype.update = function (data) {
         })   
         .transition()
         .delay(stg_delay * 2 + stg_dur)
-        .style("stroke","black");
+        .style("stroke","black")
 
     // Reveal Annotations - Stage 4
     var annot4 = chart.svg
@@ -274,12 +274,17 @@ directedScatterPlot.prototype.update = function (data) {
     annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("increased the number of")
     annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("impoverished families with ")
     annot4.append("tspan").attr("x","0").attr("dy","1.2em").html("no support from TANF.")
-    annot4.transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
-    .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur).attr("opacity", 0).remove();
-  
+    annot4
+        .transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
+        .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur)
+            .on("end", end_directedScatterPlot)
+            .attr("opacity", 0);
+
 };	
 
-
+function end_directedScatterPlot(){
+    map.update();
+};
 
 
 function rollingChoropleth(data, states){
@@ -305,6 +310,8 @@ function rollingChoropleth(data, states){
         }
     };
 
+    chart.states = states;
+
     chart.projection = d3.geoAlbersUsa()
         .translate([width/2, height/2])
         .scale([width * 1.5]); 
@@ -320,26 +327,14 @@ function rollingChoropleth(data, states){
 
     // Title and interpolating year.
 
-    var title_text = chart.svg.append("g").attr("transform", "translate(0,0)")
+    chart.title_text = chart.svg.append("g").attr("transform", "translate(0,0)")
 
-    title_text.append("text")
-        .attr("x", width/2)
-        .text("State by state TANF-to-Poverty Ratio")
-        .attr("text-anchor", "middle")
-
-    title_text.append("text")
-        .attr("x", width/2)
-        .attr("y", 20)
-        .attr("text-anchor", "middle")
-        .attr("font-size", "14px")
-        .html("Percent of Poor Families Receiving TANF")
-
-    var color_range = ["#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4"];
-    var data_bins = [0,10,20,30,40,50,60,80,90,100];
+    chart.color_range = ["#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4"];
+    chart.data_bins = [0,10,20,30,40,50,60,80,90,100];
 
     chart.colorScale = d3.scaleLinear()
-        .domain(data_bins)
-        .range(color_range);
+        .domain(chart.data_bins)
+        .range(chart.color_range);
 
     chart.xScale = d3.scaleLinear()
         .domain([0, 100])
@@ -347,65 +342,11 @@ function rollingChoropleth(data, states){
 
     chart.xAxis = d3.axisTop(chart.xScale).ticks(20)
 
-    chart.svg.append("g")
-        .attr("transform", "translate(0,51)")
-        .attr("class", "axis")
-        .call(chart.xAxis);
-
     chart.defs = chart.svg.append('defs')
 
-    for (i = 0; i < data_bins.length -1 ; i++) { 
-        var gradient = chart.defs
-            .append('linearGradient')
-            .attr('id', function() { return 'gradient' + i})
-
-        gradient.append('stop')
-            .attr('stop-color', function(d) { return color_range[i] }) // colorScale(data_bins[i])
-            .attr('offset', '0%')
-
-        gradient.append('stop')
-            .attr('stop-color', function(d) { return color_range[i + 1] }) // colorScale(data_bins[i + 1])
-            .attr('offset', '100%')
-
-        chart.svg.append("g").attr("transform", "translate(0,20)").append('rect')
-            .attr('id', function(){ return'gradient' + i + '-bar'})
-            .attr('fill', function(){ return 'url(#gradient' + i + ')'})
-            .attr('height', 25)
-            .attr('y', 25)
-            .attr('x', function(){ return chart.xScale(data_bins[i]) })
-            .attr('width', function(){ return chart.xScale(data_bins[i+1] - data_bins[i])});
-    };
-
-    var map_tooltip = d3.select("body").append("div")   
+    chart.tooltip = d3.select("body").append("div")   
         .attr("class", "tooltip")               
         .style("opacity", 0);
-
-    chart.map = chart.svg.append("g").attr("transform", "translate(0,30)").selectAll("path")
-        .data(states.features)
-        .enter()
-        .append("path")
-        .attr("class", "map")
-        .attr("d", chart.path);
-
-        chart.map.on("mouseover", function(d) {   
-
-            map_tooltip.transition()        
-                .duration(200)      
-                .style("opacity", 1)
-                .style("left", (d3.event.pageX) + "px")     
-                .style("top", (d3.event.pageY - 28) + "px");
-
-            map_tooltip.append("p")
-                .attr("class", "tooltip_text")
-                .html( d.properties.name + ": " + d.properties.value_2013 + "%" )
-
-        })        
-        .on("mouseout", function(d) {       
-            map_tooltip.html("")
-                .transition()        
-                .duration(500)      
-                .style("opacity", 0)
-        })
 
 };
 
@@ -413,14 +354,93 @@ rollingChoropleth.prototype.update = function () {
 
     var chart = this;
 
+    chart.svg.selectAll("path").remove();
+    chart.svg.selectAll("text").remove();
+
+
+    chart.title_text.append("text")
+        .text("State by state TANF-to-Poverty Ratio")
+        .attr("x", width/2)
+        .attr("text-anchor", "middle")
+        .attr("opacity", 0)
+        .transition().duration(1000)
+        .attr("opacity", 1)
+
+    chart.title_text.append("text")
+        .text("Percent of Poor Families Receiving TANF")
+        .attr("x", width/2)
+        .attr("y", 20)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .attr("opacity", 0)
+        .transition().duration(1000)
+        .attr("opacity", 1)
+
+    chart.svg.append("g")
+        .attr("transform", "translate(0,51)")
+        .attr("class", "axis")
+        .transition().duration(1000)
+        .call(chart.xAxis);
+
+    for (i = 0; i < chart.data_bins.length -1 ; i++) { 
+        var gradient = chart.defs
+            .append('linearGradient')
+            .attr('id', function() { return 'gradient' + i})
+
+        gradient.append('stop')
+            .attr('stop-color', function(d) { return chart.color_range[i] })
+            .attr('offset', '0%')
+
+        gradient.append('stop')
+            .attr('stop-color', function(d) { return chart.color_range[i + 1] }) 
+            .attr('offset', '100%');
+
+        chart.svg.append("g").attr("transform", "translate(0,20)").append('rect')
+            .attr('id', function(){ return'gradient' + i + '-bar'})
+            .attr('fill', function(){ return 'url(#gradient' + i + ')'})
+            .attr('y', 25)
+            .attr('x', function(){ return chart.xScale(chart.data_bins[i]) })
+            .attr('width', function(){ return chart.xScale(chart.data_bins[i+1] - chart.data_bins[i])})
+            .attr('height', 0)
+            .transition().delay(1000).duration(1000)
+            .attr('height', 25);
+    };
+
+    chart.map = chart.svg.append("g").attr("transform", "translate(0,30)").selectAll("path")
+        .data(chart.states.features)
+        .enter()
+        .append("path")
+        .attr("class", "map")
+        .attr("d", chart.path);
+
     chart.map
+        .on("mouseover", function(d) {   
+            chart.tooltip.transition()        
+                .duration(200)      
+                .style("opacity", 1)
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");
+
+            chart.tooltip.append("p")
+                .attr("class", "tooltip_text")
+                .html( d.properties.name + ": " + d.properties.value_2013 + "%" )
+        })        
+        .on("mouseout", function(d) {       
+            chart.tooltip.html("")
+                .transition()        
+                .duration(500)      
+                .style("opacity", 0)
+        });
+
+    chart.map
+        .style("fill", "white")
+        .transition().delay(2000).duration(1000)
         .style("fill", function(d){
             return chart.colorScale(d.properties.value_1994);
         })
-        .transition().duration(stg_delay * 10 + stg_dur * 5)
+        .transition().delay(2000).duration(stg_delay * 10 + stg_dur * 5)
 
         .styleTween("fill", function(d,i){
-
             var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
             return function(t){
                 var value = interpolator(t)
@@ -432,7 +452,6 @@ rollingChoropleth.prototype.update = function () {
     // Make tick marks percentages on color scale?
 
     // Add a rolling ticker of national TANF-to-POVERTY Ratio?
-
 
     // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
 
