@@ -7,7 +7,7 @@ d3.queue()
   .awaitAll(function (error, results) {
     if (error) { throw error; }
     
-    scatter = new directedScatterPlot(results[0]);
+    scatter = new DirectedScatterPlot(results[0]);
     scatter.update(results[0]);
 
     map = new rollingChoropleth(results[1], results[2]);
@@ -33,14 +33,16 @@ var width = 625 - margin.left - margin.right;
 var height = 625 - margin.top - margin.bottom;
 
 
-function directedScatterPlot(data) {
+function DirectedScatterPlot(data) {
     
     var chart = this;
 
-    chart.svg = d3.select("#chart1")
+    chart.SVG = d3.select("#chart1")
     	.append("svg")
-    	.attr("width", width + margin.left + margin.right)
-    	.attr("height", height + margin.top + margin.bottom)
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+
+    chart.svg = d3.select("svg")
     	.append("g")
     	.attr("transform", function(){ return "translate(" + margin.left + "," + margin.top + ")" });
 
@@ -53,20 +55,21 @@ function directedScatterPlot(data) {
       	.domain([1500000, 4500000])
     	.range([height, 0]);
 
-    var xAxis = d3.axisBottom(chart.xScale).ticks(5, "s");
-	var yAxis = d3.axisLeft(chart.yScale).ticks(5, "s");
+    chart.xAxis = d3.axisBottom(chart.xScale).ticks(5, "s");
+	chart.yAxis = d3.axisLeft(chart.yScale).ticks(5, "s");
 
     chart.svg.append("g")
     	.attr("transform", function(){ return "translate(0," + height + ")" })
     	.attr("class", "axis")
-    	.call(xAxis);
+    	.call(chart.xAxis);
 
     chart.svg.append("g")
     	.attr("class", "axis")
-    	.call(yAxis);
+    	.call(chart.yAxis);
 
 	chart.svg
 		.append("text")
+        .attr("class", "yAxisLabel")
 		.attr("transform", "rotate(-90)")
 		.attr("x", -(height / 2))
 		.attr("y", -(margin.left * 0.75))
@@ -75,6 +78,7 @@ function directedScatterPlot(data) {
 
 	chart.svg
 		.append("text")
+        .attr("class", "xAxisLabel")
 		.attr("x", width / 2)
 		.attr("y", height + margin.bottom * 0.75)
 		.style("text-anchor", "middle")
@@ -82,15 +86,22 @@ function directedScatterPlot(data) {
 
 };
 
-directedScatterPlot.prototype.update = function (data) {
+DirectedScatterPlot.prototype.update = function (data) {
 
     var chart = this;
     var full = data.slice();
 
+    chart.svg.selectAll(".axisLabelMin").remove();
     chart.svg.selectAll(".circ").remove();
     chart.svg.selectAll("path").remove();
     chart.svg.selectAll(".year_note").remove();
+    chart.svg.selectAll(".year_note_min").remove();
     chart.svg.selectAll(".annotation").remove();
+
+    chart.SVG 
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+
 
     chart.svg.selectAll(".circ")
     	.data(full, function(d){ return d.year }).enter()
@@ -276,21 +287,56 @@ directedScatterPlot.prototype.update = function (data) {
     annot4
         .transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
         .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur)
-            .on("end", chart.minimize)
+            .on("end", function () { chart.minimize() })
             .attr("opacity", 0);
 
 };	
 
 
-directedScatterPlot.prototype.minimize = function () {
+DirectedScatterPlot.prototype.minimize = function () {
 
     var chart = this;
 
-    console.log(chart.svg);
-    // why is chart.svg undefined here?
+    chart.svg.selectAll("g.axis").remove();
 
-    map.clean()
-    map.update();
+    chart.svg.selectAll(".circ")
+        .transition().duration(1000)
+        .attr("cx", function(d){ return chart.xScale(d.fam_child_pov) / 3 })
+        .attr("cy", function(d){ return chart.yScale(d.tanf_fam) / 3 })
+        .attr("r", 2);
+
+    chart.svg.selectAll(".year_note")        
+        .transition().duration(1000)
+        .attr("class", "year_note_min")
+        .attr("x", function(d){ return chart.xScale(d.fam_child_pov)/3 })
+        .attr("y", function(d){ return chart.yScale(d.tanf_fam)/3 });    
+
+    chart.svg.selectAll("path")
+        .transition().duration(1000)
+        .attr("transform", "scale(0.33)");
+
+    chart.svg.selectAll("text.yAxisLabel")
+        .attr("class", "axisLabelMin")
+        .transition().duration(1000)
+        .attr("x", -height/6)
+        .attr("y", 0)
+        .style("font-size", "7px");
+
+    chart.svg.selectAll("text.xAxisLabel")
+        .attr("class", "axisLabelMin")
+        .transition().duration(1000)
+        .attr("x", (width / 2)/3)
+        .attr("y", (height + margin.bottom )/3)
+        .style("font-size", "7px");
+
+    chart.SVG
+        .transition().delay(1000)
+        .on("end", function(d){
+            map.clean();
+            map.update();
+        })
+        .attr("width", (width + margin.left + margin.right)/3)
+        .attr("height", (height + margin.top + margin.bottom)/3);
 };
 
 

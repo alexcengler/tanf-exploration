@@ -139,6 +139,12 @@ hr {
     fill: #5c5859;
 }
 
+.year_note_min {
+    font: Lato;
+    font-size: 6px;
+    fill: #5c5859;
+}
+
 .annotation {
     font: Lato;
     font-size: 20px;
@@ -161,3 +167,4 @@ div.tooltip {
     border-radius: 6px;         
     pointer-events: none;           
 }
+
