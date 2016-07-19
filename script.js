@@ -334,8 +334,8 @@ DirectedScatterPlot.prototype.minimize = function () {
             map.clean();
             map.update();
         })
-        .attr("width", (width + margin.left + margin.right)/3)
-        .attr("height", (height + margin.top + margin.bottom)/3);
+        .attr("width", (width + margin.left + margin.right)/2)
+        .attr("height", (height + margin.top + margin.bottom)/2);
 };
 
 
