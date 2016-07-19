@@ -14,8 +14,8 @@ d3.queue()
     map = new rollingChoropleth(results[1], results[2]);
 
     d3.select('#restart').on('click', function () {
+        map.clean()
         scatter.update(results[0]);
-        end_directedScatterPlot()
     });
   });
 
@@ -283,9 +283,9 @@ directedScatterPlot.prototype.update = function (data) {
 };	
 
 function end_directedScatterPlot(){
+    map.clean()
     map.update();
 };
-
 
 function rollingChoropleth(data, states){
 
@@ -350,13 +350,20 @@ function rollingChoropleth(data, states){
 
 };
 
-rollingChoropleth.prototype.update = function () {
+
+rollingChoropleth.prototype.clean = function () {
 
     var chart = this;
 
     chart.svg.selectAll("path").remove();
     chart.svg.selectAll("text").remove();
+    chart.svg.selectAll("rect").remove();
+    chart.svg.selectAll("g.axis").remove();
+};
 
+rollingChoropleth.prototype.update = function () {
+
+    var chart = this;
 
     chart.title_text.append("text")
         .text("State by state TANF-to-Poverty Ratio")

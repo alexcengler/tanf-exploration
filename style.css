@@ -104,7 +104,10 @@ hr {
     display: block;
 }
 
-
+#chart svg {
+  display: block;
+  margin: 0 auto;
+}
 
 .section {
   padding: 1em 0;
@@ -116,16 +119,11 @@ hr {
   padding: 1em 0 2em;
 }
 
-#chart svg {
-  display: block;
-  margin: 0 auto;
-}
-
 .circ { 
     stroke-width: 0;
-    stroke-linecap: round;
-    opacity: 0.6;
     fill: #1696d2;
+    opacity: 0.6;
+    stroke-linecap: round;
  }
 
 .line {
@@ -133,7 +131,7 @@ hr {
 	stroke-width: 3;
 	fill: none;
     opacity: 0.7;
-
+    stroke-linecap: round;
 }
 .year_note {
     font: Lato;
@@ -163,6 +161,3 @@ div.tooltip {
     border-radius: 6px;         
     pointer-events: none;           
 }
-
-
-
