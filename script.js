@@ -26,8 +26,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 200; // 800
-var stg_delay = 350; // 1400
+var stg_dur = 100; // 800
+var stg_delay = 175; // 1400
 
 var width = 625 - margin.left - margin.right;
 var height = 625 - margin.top - margin.bottom;
@@ -340,6 +340,18 @@ DirectedScatterPlot.prototype.minimize = function () {
 
 
 function rollingChoropleth(data, states){
+
+    var tickArea = d3.select("#chart1")
+        .append("svg")
+        .attr("id", "yearTicker")
+        .attr("width", (width + margin.left + margin.right)/2)
+        .attr("height", (height + margin.top + margin.bottom)/2) 
+
+    var tickText = tickArea.append("text")
+        .text("1995")
+        .attr("text-anchor", "middle")
+        .attr("x", (height + margin.top + margin.bottom)/4)
+        .attr("y", 50)
 
     var chart = this;
 
