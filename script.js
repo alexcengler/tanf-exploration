@@ -1,6 +1,5 @@
 
 
-
 d3.queue()
   .defer(d3.json, 'data/fam-w-children-tanf-ratio.json')
   .defer(d3.json, 'data/state_tanf_to_poverty_ratio.json')
@@ -282,10 +281,14 @@ directedScatterPlot.prototype.update = function (data) {
 
 };	
 
-directedScatterPlot.prototype.minimize = function(data){
 
-    
-    
+// directedScatterPlot.prototype.update = function (data) {
+
+directedScatterPlot.prototype.minimize = function () {
+
+    var chart = this;
+
+    console.log(chart.svg);
     map.clean()
     map.update();
 };
@@ -353,7 +356,6 @@ function rollingChoropleth(data, states){
         .style("opacity", 0);
 
 };
-
 
 rollingChoropleth.prototype.clean = function () {
 
