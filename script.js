@@ -277,15 +277,19 @@ directedScatterPlot.prototype.update = function (data) {
     annot4
         .transition().delay(stg_delay * 8 + stg_dur * 4).duration(stg_dur).attr("opacity", 1)
         .transition().delay(stg_delay * 2 + stg_dur).duration(stg_dur)
-            .on("end", end_directedScatterPlot)
+            .on("end", chart.minimize)
             .attr("opacity", 0);
 
 };	
 
-function end_directedScatterPlot(){
+directedScatterPlot.prototype.minimize = function(data){
+
+    
+    
     map.clean()
     map.update();
 };
+
 
 function rollingChoropleth(data, states){
 
