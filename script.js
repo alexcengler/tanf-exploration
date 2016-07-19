@@ -282,13 +282,13 @@ directedScatterPlot.prototype.update = function (data) {
 };	
 
 
-// directedScatterPlot.prototype.update = function (data) {
-
 directedScatterPlot.prototype.minimize = function () {
 
     var chart = this;
 
     console.log(chart.svg);
+    // why is chart.svg undefined here?
+
     map.clean()
     map.update();
 };
