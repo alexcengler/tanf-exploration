@@ -26,8 +26,9 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 100; // 800
-var stg_delay = 175; // 1400
+var stg_dur = 800; // 800
+var stg_delay = 1400; // 1400
+var map_duration = stg_dur * 12
 
 var width = 625 - margin.left - margin.right;
 var height = 625 - margin.top - margin.bottom;
@@ -58,22 +59,6 @@ function DirectedScatterPlot(data) {
     chart.xAxis = d3.axisBottom(chart.xScale).ticks(5, "s");
 	chart.yAxis = d3.axisLeft(chart.yScale).ticks(5, "s");
 
-	chart.svg
-		.append("text")
-        .attr("class", "yAxisLabel")
-		.attr("transform", "rotate(-90)")
-		.attr("x", -(height / 2))
-		.attr("y", -(margin.left * 0.75))
-	    .style("text-anchor", "middle")
-		.html("Families with Children on TANF");
-
-	chart.svg
-		.append("text")
-        .attr("class", "xAxisLabel")
-		.attr("x", width / 2)
-		.attr("y", height + margin.bottom * 0.75)
-		.style("text-anchor", "middle")
-		.html("Impoverished Families with Children");
 
 };
 
@@ -81,6 +66,8 @@ DirectedScatterPlot.prototype.update = function (data) {
 
     var chart = this;
     var full = data.slice();
+
+    chart.svg.selectAll("*").interrupt();
 
     chart.svg.selectAll(".axisLabelMin").remove();
     chart.svg.selectAll(".circ").remove();
@@ -101,6 +88,24 @@ DirectedScatterPlot.prototype.update = function (data) {
     chart.svg.append("g")
         .attr("class", "axis")
         .call(chart.yAxis);
+
+    chart.svg
+        .append("text")
+        .attr("class", "yAxisLabel")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -(height / 2))
+        .attr("y", -(margin.left * 0.75))
+        .style("text-anchor", "middle")
+        .html("Families with Children on TANF");
+
+    chart.svg
+        .append("text")
+        .attr("class", "xAxisLabel")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom * 0.75)
+        .style("text-anchor", "middle")
+        .html("Impoverished Families with Children");
+
 
     chart.svg.selectAll(".circ")
     	.data(full, function(d){ return d.year }).enter()
@@ -185,7 +190,7 @@ DirectedScatterPlot.prototype.update = function (data) {
 
     annot1.append("tspan").html("Families enrolled in")
     annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF dropped by over")
-    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("50% after 1996 reform.")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("50% after 1995 reform.")
     annot1.transition().delay(stg_delay).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2).duration(stg_dur).attr("opacity", 0).remove();
 
@@ -268,7 +273,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         })   
         .transition()
         .delay(stg_delay * 2 + stg_dur)
-        .style("stroke","black")
+        .style("stroke","black");
 
     // Reveal Annotations - Stage 4
     var annot4 = chart.svg
@@ -295,6 +300,11 @@ DirectedScatterPlot.prototype.update = function (data) {
 DirectedScatterPlot.prototype.minimize = function () {
 
     var chart = this;
+
+    // Can move entire svg over if necessary:
+    // chart.svg
+    //     .transition().duration(1000)
+    //     .attr("transform","translate(-20,30)");
 
     chart.svg.selectAll("g.axis").remove();
 
@@ -400,40 +410,62 @@ function rollingChoropleth(data, states){
         .attr("class", "tooltip")               
         .style("opacity", 0);
 
+    chart.tickArea = d3.select("#chart1")
+        .append("svg")
+        .attr("id", "yearTicker")
+        .attr("width", (0)/2)
+        .attr("height", 0);
+
 };
 
 rollingChoropleth.prototype.clean = function () {
 
     var chart = this;
 
+    chart.svg.selectAll("*").interrupt();
+
     chart.svg.selectAll("path").remove();
-    chart.svg.selectAll("text").remove();
+    chart.svg.selectAll("text.title").remove();
+    chart.svg.selectAll("text.subtitle").remove();
+    chart.svg.selectAll("text.annotation").remove();
     chart.svg.selectAll("rect").remove();
     chart.svg.selectAll("g.axis").remove();
+    chart.tickArea.selectAll("text").remove();
+
 };
 
 rollingChoropleth.prototype.update = function () {
 
     var chart = this;
 
-    var tickArea = d3.select("#chart1")
-        .append("svg")
-        .attr("id", "yearTicker")
+    chart.tickArea
         .attr("width", (width + margin.left + margin.right)/2)
         .attr("height", (height + margin.top + margin.bottom)/2) 
 
-    var tickText = tickArea.append("text")
+    var tickText = chart.tickArea
+        .append("text")
         .text("1995")
         .attr("text-anchor", "middle")
         .attr("x", (height + margin.top + margin.bottom)/4)
         .attr("y", 50)
-        .attr("opacity", 0)
+        .attr("opacity", 1)        
         .transition().duration(1000)
-        .attr("opacity", 1);
+        .tween("text", function(){
+
+            var interpolator = d3.interpolate(1995, 2014);
+            
+            return function(t){
+ 
+                d3.select(this).text(interpolator(t));
+
+            };
+        });
+
 
 
     chart.title_text.append("text")
         .text("State by state TANF-to-Poverty Ratio")
+        .attr("class", "title")
         .attr("x", width/2)
         .attr("text-anchor", "middle")
         .attr("opacity", 0)
@@ -442,6 +474,7 @@ rollingChoropleth.prototype.update = function () {
 
     chart.title_text.append("text")
         .text("Percent of Poor Families Receiving TANF")
+        .attr("class", "subtitle")
         .attr("x", width/2)
         .attr("y", 20)
         .attr("text-anchor", "middle")
@@ -474,7 +507,7 @@ rollingChoropleth.prototype.update = function () {
             .attr('fill', function(){ return 'url(#gradient' + i + ')'})
             .attr('y', 25)
             .attr('x', function(){ return chart.xScale(chart.data_bins[i]) })
-            .attr('width', function(){ return chart.xScale(chart.data_bins[i+1] - chart.data_bins[i])})
+            .attr('width', function(){ return 1 + chart.xScale(chart.data_bins[i+1] - chart.data_bins[i])})
             .attr('height', 0)
             .transition().delay(1000).duration(1000)
             .attr('height', 25);
@@ -485,7 +518,26 @@ rollingChoropleth.prototype.update = function () {
         .enter()
         .append("path")
         .attr("class", "map")
-        .attr("d", chart.path);
+        .attr("d", chart.path)
+        .style("stroke","white");
+    chart.map
+        .transition().delay(1000).duration(1000)
+        .style("stroke","black");
+
+    chart.map
+        .style("fill","white")
+        .transition().delay(2000)
+        .style("fill", function(d){
+            return chart.colorScale(d.properties.value_1994);
+        })
+        .transition().delay(2000).duration(map_duration)
+        .styleTween("fill", function(d,i){
+            var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
+            return function(t){
+                var value = interpolator(t)
+                return chart.colorScale(value)
+            };
+        });
 
     chart.map
         .on("mouseover", function(d) {   
@@ -502,37 +554,20 @@ rollingChoropleth.prototype.update = function () {
         .on("mouseout", function(d) {       
             chart.tooltip.html("")
                 .transition()        
-                .duration(500)      
                 .style("opacity", 0)
-        });
-
-    chart.map
-        .style("fill", "white")
-        .transition().delay(2000).duration(1000)
-        .style("fill", function(d){
-            return chart.colorScale(d.properties.value_1994);
-        })
-        .transition().delay(2000).duration(stg_delay * 10 + stg_dur * 5)
-
-        .styleTween("fill", function(d,i){
-            var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
-            return function(t){
-                var value = interpolator(t)
-                return chart.colorScale(value)
-            };
-        });
+        });        
 };
 
-    // Make tick marks percentages on color scale?
+
+
+    // restart button messes with transitions. need global transition interupt. it also removes the axis labels sometimes.
 
     // Add a rolling ticker of national TANF-to-POVERTY Ratio?
 
+    // Make tick marks percentages on color scale?
     // Scroll over for the map, so the appropriate place on the color scale appears. Also, importantly, the first and last year for that state.
-
     // need full data for map soon
-    // minimize the directed scatterplot, then pull map up, 
 
-    //selecting a state shows a specific directed scatterplot for that state?
-
+    // selecting a state shows a specific directed scatterplot for that state?
     // options for state by state explanations of policy?
 
