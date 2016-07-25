@@ -444,23 +444,24 @@ rollingChoropleth.prototype.update = function () {
 
     var tickText = chart.tickArea
         .append("text")
-        .text("1995")
+        .text(0)
+        .attr("class","unique")
         .attr("text-anchor", "middle")
         .attr("x", 100)
         .attr("y", 25)
-        .attr("opacity", 1)        
+        .attr("opacity", 1)
+
+    chart.tickArea    
         .transition().duration(1000)
         .tween("text", function(){
 
-            var interpolator = d3.interpolate(1995, 2014);
-            
-            return function(t){
- 
-                d3.select(this).text(interpolator(t));
+        var that = d3.select("#unique")
+        var i = d3.interpolateNumber(1994, 2014)
 
+            return function(t) {
+                that.text(i(t));
             };
         });
-
 
 
     chart.title_text.append("text")
@@ -559,8 +560,6 @@ rollingChoropleth.prototype.update = function () {
 };
 
 
-
-    // restart button messes with transitions. need global transition interupt. it also removes the axis labels sometimes.
 
     // Add a rolling ticker of national TANF-to-POVERTY Ratio?
 
