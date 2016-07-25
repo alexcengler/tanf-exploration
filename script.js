@@ -26,8 +26,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 800; // 800
-var stg_delay = 1400; // 1400
+var stg_dur = 100; // 800
+var stg_delay = 175; // 1400
 var map_duration = stg_dur * 12
 
 var width = 625 - margin.left - margin.right;
@@ -410,7 +410,7 @@ function rollingChoropleth(data, states){
         .attr("class", "tooltip")               
         .style("opacity", 0);
 
-    chart.tickArea = d3.select("#chart1")
+    chart.tickArea = d3.select("#tickArea")
         .append("svg")
         .attr("id", "yearTicker")
         .attr("width", (0)/2)
@@ -439,15 +439,15 @@ rollingChoropleth.prototype.update = function () {
     var chart = this;
 
     chart.tickArea
-        .attr("width", (width + margin.left + margin.right)/2)
-        .attr("height", (height + margin.top + margin.bottom)/2) 
+        .attr("width", 200)
+        .attr("height", 50) 
 
     var tickText = chart.tickArea
         .append("text")
         .text("1995")
         .attr("text-anchor", "middle")
-        .attr("x", (height + margin.top + margin.bottom)/4)
-        .attr("y", 50)
+        .attr("x", 100)
+        .attr("y", 25)
         .attr("opacity", 1)        
         .transition().duration(1000)
         .tween("text", function(){
