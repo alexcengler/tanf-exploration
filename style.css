@@ -133,6 +133,15 @@ hr {
     opacity: 0.7;
     stroke-linecap: round;
 }
+
+.smallLine {
+    stroke: black;
+    stroke-width: 2;
+    fill: none;
+    opacity: 0.7;
+    stroke-linecap: round;
+}
+
 .year_note {
     font: Lato;
     font-size: 12px;
@@ -142,6 +151,12 @@ hr {
 .year_note_min {
     font: Lato;
     font-size: 6px;
+    fill: #5c5859;
+}
+
+.year_note_min_state {
+    font: Lato;
+    font-size: 12px;
     fill: #5c5859;
 }
 
@@ -167,4 +182,5 @@ div.tooltip {
     border-radius: 6px;         
     pointer-events: none;           
 }
+
 

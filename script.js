@@ -11,6 +11,7 @@ d3.queue()
     scatter.update(results[0]);
 
     map = new rollingChoropleth(results[1], results[2]);
+    stateChart = new StateScatter(results[1])
 
     d3.select('#restart').on('click', function () {
         map.clean()
@@ -327,14 +328,14 @@ DirectedScatterPlot.prototype.minimize = function () {
     chart.svg.selectAll("text.yAxisLabel")
         .attr("class", "axisLabelMin")
         .transition().duration(1000)
-        .attr("x", -height/6)
+        .attr("x", (-height/6))
         .attr("y", 0)
         .style("font-size", "7px");
 
     chart.svg.selectAll("text.xAxisLabel")
         .attr("class", "axisLabelMin")
         .transition().duration(1000)
-        .attr("x", (width / 2)/3)
+        .attr("x", (width / 6))
         .attr("y", (height + margin.bottom )/3)
         .style("font-size", "7px");
 
@@ -345,8 +346,9 @@ DirectedScatterPlot.prototype.minimize = function () {
             map.update();
         })
         .attr("width", (width + margin.left + margin.right)/2)
-        .attr("height", (height + margin.top + margin.bottom)/2);
+        .attr("height", (height + margin.top + margin.bottom)/2.3);
 };
+
 
 
 function rollingChoropleth(data, states){
@@ -417,6 +419,11 @@ function rollingChoropleth(data, states){
         .attr("height", 0);
 
 };
+
+
+
+
+
 
 rollingChoropleth.prototype.clean = function () {
 
@@ -542,6 +549,14 @@ rollingChoropleth.prototype.update = function () {
 
     chart.map
         .on("mouseover", function(d) {   
+
+
+            // Pull State Name out to Pass to stateChart.update()
+            var state = d3.values(d)
+            var stateName = state[2].name
+
+            stateChart.update(stateName);
+
             chart.tooltip.transition()        
                 .duration(200)      
                 .style("opacity", 1)
@@ -551,14 +566,101 @@ rollingChoropleth.prototype.update = function () {
             chart.tooltip.append("p")
                 .attr("class", "tooltip_text")
                 .html( d.properties.name + ": " + d.properties.value_2013 + "%" )
+
         })        
-        .on("mouseout", function(d) {       
+        .on("mouseout", function(d) {   
+
+            stateChart.kill();
+
             chart.tooltip.html("")
                 .transition()        
                 .style("opacity", 0)
         });        
 };
 
+
+function StateScatter(data) {
+
+    var chart = this;
+
+    chart.full = data.slice();
+
+    chart.SVG = d3.select("#chart1").append("svg")
+        .attr("id", "stateChart")
+        .attr("width", (width + margin.left + margin.right)/2)
+        .attr("height", (height + margin.top + margin.bottom)/2);
+
+    chart.svg = chart.SVG
+        .append("g")
+        .attr("transform", function(){ return "translate(" + margin.left/2 + "," + margin.top/2 + ")" });
+
+;}
+
+
+StateScatter.prototype.update = function(stateName) {
+
+    var chart = this;
+
+    var filteredData = chart.full.filter(function(d) { return d.State === stateName });
+    console.log(filteredData);
+
+    chart.xScale = d3.scaleLinear()
+        .domain([1995,2014])
+        .range([0, width/2])
+        .nice();
+
+    chart.yScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([height/2, 0]);
+
+    chart.xAxis = d3.axisBottom(chart.xScale).ticks(6, "f");
+    chart.yAxis = d3.axisLeft(chart.yScale).ticks(5, "s");
+
+    chart.svg.append("g")
+        .attr("transform", function(){ return "translate(0," + height/2 + ")" })
+        .attr("class", "axis")
+        .call(chart.xAxis);
+
+    chart.svg.append("g")
+        .attr("class", "axis")
+        .call(chart.yAxis);    
+
+    chart.svg
+        .append("text")
+        .classed("year_note_min_state", true)
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height/4)
+        .attr("y", -margin.left*0.4)
+        .style("text-anchor", "middle")
+        .html("TANF Ratio");
+
+    chart.svg
+        .append("text")
+        .classed("year_note_min_state", true)
+        .attr("x", width / 4)
+        .attr("y", height/2 + (margin.bottom * 0.4))
+        .style("text-anchor", "middle")
+        .html("Year");
+
+    // console.log(filteredData);
+
+    chart.svg.append("line")
+        .data(filteredData)
+        .attr("class", "smallLine")
+        .attr("x1", function() { return chart.xScale(1994) })
+        .attr("x2", function() { return chart.xScale(2014) })
+        .attr("y1", function(d) { return chart.yScale(d.y1994) })
+        .attr("y2", function(d) { return chart.yScale(d.y2013) });
+};
+
+StateScatter.prototype.kill = function () {
+
+    var chart = this;
+
+    chart.svg.selectAll("g").remove();
+    chart.svg.selectAll(".smallLine").remove();
+
+};
 
 
     // Add a rolling ticker of national TANF-to-POVERTY Ratio?
