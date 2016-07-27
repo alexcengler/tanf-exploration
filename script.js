@@ -630,7 +630,7 @@ StateScatter.prototype.update = function(stateName) {
         .classed("year_note_min_state", true)
         .attr("transform", "rotate(-90)")
         .attr("x", -height/4)
-        .attr("y", -margin.left*0.4)
+        .attr("y", -margin.left*0.35)
         .style("text-anchor", "middle")
         .html("TANF Ratio");
 
@@ -658,7 +658,8 @@ StateScatter.prototype.kill = function () {
     var chart = this;
 
     chart.svg.selectAll("g").remove();
-    chart.svg.selectAll(".smallLine").remove();
+    chart.svg.selectAll("line").remove();
+    chart.svg.selectAll("text").remove();
 
 };
 
