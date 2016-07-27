@@ -587,14 +587,8 @@ function StateScatter(data) {
 
     chart.SVG = d3.select("#chart1").append("svg")
         .attr("id", "stateChart")
-        .attr("width", (width + margin.left + margin.right)/2)
-        .attr("height", (height + margin.top + margin.bottom)/2);
 
-    chart.svg = chart.SVG
-        .append("g")
-        .attr("transform", function(){ return "translate(" + margin.left/2 + "," + margin.top/2 + ")" });
-
-;}
+}
 
 
 StateScatter.prototype.update = function(stateName) {
@@ -603,6 +597,20 @@ StateScatter.prototype.update = function(stateName) {
 
     var filteredData = chart.full.filter(function(d) { return d.State === stateName });
     console.log(filteredData);
+
+    chart.SVG
+        .attr("width", (width + margin.left + margin.right)/2)
+        .attr("height", (height + margin.top + margin.bottom)/2);
+
+    chart.svg = chart.SVG
+        .append("g")
+        .attr("transform", function(){ return "translate(" + margin.left/2 + "," + margin.top/2 + ")" });
+
+    chart.svg.append("text")
+        .data(filteredData)
+        .text(stateName + " Trend")
+        .attr("x", 20)
+        .attr("y", 15);
 
     chart.xScale = d3.scaleLinear()
         .domain([1995,2014])
@@ -651,6 +659,7 @@ StateScatter.prototype.update = function(stateName) {
         .attr("x2", function() { return chart.xScale(2014) })
         .attr("y1", function(d) { return chart.yScale(d.y1994) })
         .attr("y2", function(d) { return chart.yScale(d.y2013) });
+
 };
 
 StateScatter.prototype.kill = function () {
