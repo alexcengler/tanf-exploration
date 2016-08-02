@@ -27,8 +27,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 100; // 800
-var stg_delay = 175; // 1400
+var stg_dur = 800; // 800
+var stg_delay = 1400; // 1400
 var map_duration = stg_dur * 12
 
 var width = 625 - margin.left - margin.right;
