@@ -295,7 +295,7 @@ DirectedScatterPlot.prototype.update = function (data) {
             .on("end", function () { chart.minimize() })
             .attr("opacity", 0);
 
-};	
+};
 
 
 DirectedScatterPlot.prototype.minimize = function () {
@@ -363,7 +363,11 @@ DirectedScatterPlot.prototype.follow = function () {
         .attr("cx", function(d){ return chart.xScale(d.fam_child_pov) / 3 })
        .attr("cy", function(d){ return chart.yScale(d.tanf_fam) / 3 });
 
-
+    // var followPath = chart.svg.select(".followPath")
+    //     .append("path")
+    //     .attr("class", "followPath")
+    //     .style("stroke","#ec008b")
+    //     .attr("d", )
 
 
 };
