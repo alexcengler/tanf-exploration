@@ -66,7 +66,7 @@ function DirectedScatterPlot(data) {
 DirectedScatterPlot.prototype.update = function (data) {
 
     var chart = this;
-    var full = data.slice();
+    chart.full = data.slice();
 
     chart.svg.selectAll("*").interrupt();
 
@@ -76,6 +76,7 @@ DirectedScatterPlot.prototype.update = function (data) {
     chart.svg.selectAll(".year_note").remove();
     chart.svg.selectAll(".year_note_min").remove();
     chart.svg.selectAll(".annotation").remove();
+    chart.svg.selectAll(".followPoint").remove();
 
     chart.SVG 
         .attr("width", width + margin.left + margin.right)
@@ -107,9 +108,8 @@ DirectedScatterPlot.prototype.update = function (data) {
         .style("text-anchor", "middle")
         .html("Impoverished Families with Children");
 
-
     chart.svg.selectAll(".circ")
-    	.data(full, function(d){ return d.year }).enter()
+    	.data(chart.full, function(d){ return d.year }).enter()
     	.append("circle")
     	.attr("class", "circ")
     	.attr("r", 0)
@@ -121,7 +121,7 @@ DirectedScatterPlot.prototype.update = function (data) {
     	.attr("r", 8);
 
     chart.svg.selectAll(".year_note")
-        .data(full).enter()
+        .data(chart.full).enter()
         .append("text")
         .attr("class", "year_note")
         .attr("opacity", 0)
@@ -172,7 +172,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(full.filter(function(d) { return d.year < 2001; })
+                return line(chart.full.filter(function(d) { return d.year < 2001; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })
@@ -204,7 +204,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(full.filter(function(d) { return d.year >= 2000 && d.year < 2005; })
+                return line(chart.full.filter(function(d) { return d.year >= 2000 && d.year < 2005; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })        
@@ -236,7 +236,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(full.filter(function(d) { return d.year >= 2004 && d.year < 2008; })
+                return line(chart.full.filter(function(d) { return d.year >= 2004 && d.year < 2008; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })       
@@ -268,7 +268,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(full.filter(function(d) { return d.year >= 2007; })
+                return line(chart.full.filter(function(d) { return d.year >= 2007; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })   
@@ -320,7 +320,6 @@ DirectedScatterPlot.prototype.minimize = function () {
         .attr("class", "year_note_min")
         .attr("x", function(d){ return chart.xScale(d.fam_child_pov)/3 })
         .attr("y", function(d){ return chart.yScale(d.tanf_fam)/3 });    
-
     chart.svg.selectAll("path")
         .transition().duration(1000)
         .attr("transform", "scale(0.33)");
@@ -344,11 +343,30 @@ DirectedScatterPlot.prototype.minimize = function () {
         .on("end", function(d){
             map.clean();
             map.update();
+            scatter.follow();
         })
         .attr("width", (width + margin.left + margin.right)/2)
         .attr("height", (height + margin.top + margin.bottom)/2.3);
 };
 
+DirectedScatterPlot.prototype.follow = function () {
+
+    var chart = this;
+
+    var followCircle = chart.svg.selectAll(".followPoint")
+        .data(chart.full.filter(function(d,i) { return i === 0 }))
+        .enter()
+        .append("circle")
+        .attr("class", "followPoint")
+        .attr("fill", "#ec008b")
+        .attr("r", 3)
+        .attr("cx", function(d){ return chart.xScale(d.fam_child_pov) / 3 })
+       .attr("cy", function(d){ return chart.yScale(d.tanf_fam) / 3 });
+
+
+
+
+};
 
 
 function rollingChoropleth(data, states){
@@ -421,10 +439,6 @@ function rollingChoropleth(data, states){
 };
 
 
-
-
-
-
 rollingChoropleth.prototype.clean = function () {
 
     var chart = this;
@@ -449,16 +463,25 @@ rollingChoropleth.prototype.update = function () {
         .attr("width", 200)
         .attr("height", 50) 
 
-    var tickText = chart.tickArea
+    var tickText1 = chart.tickArea
         .append("text")
-        .text("")
+        .text("Year: ")
         .attr("class","unique")
         .attr("text-anchor", "middle")
-        .attr("x", 100)
-        .attr("y", 25)
+        .attr("x", 75)
+        .attr("y", 50)
         .attr("opacity", 1)
 
-    tickText    
+    var tickText2 = chart.tickArea
+        .append("text")
+        .text(1994)
+        .attr("class","unique")
+        .attr("text-anchor", "middle")
+        .attr("x", 125)
+        .attr("y", 50)
+        .attr("opacity", 1)
+
+    tickText2   
         .transition().delay(4000).duration(map_duration)
         .tween("text", function () {
             var i = d3.interpolateNumber(1994, 2014)
@@ -604,7 +627,6 @@ StateScatter.prototype.update = function(stateName) {
         .attr("transform", function(){ return "translate(" + margin.left/2 + "," + margin.top/2 + ")" });
 
     chart.svg.append("text")
-        .data(filteredData)
         .text(stateName + " Trend")
         .attr("x", 20)
         .attr("y", 15);
@@ -647,8 +669,6 @@ StateScatter.prototype.update = function(stateName) {
         .style("text-anchor", "middle")
         .html("Year");
 
-    // console.log(filteredData);
-
     chart.svg.append("line")
         .data(filteredData)
         .attr("class", "smallLine")
@@ -669,6 +689,7 @@ StateScatter.prototype.kill = function () {
     
 };
 
+    // why is the tween for the tick text non-linear?
 
     // Add a rolling ticker of national TANF-to-POVERTY Ratio?
 
