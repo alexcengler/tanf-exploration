@@ -27,8 +27,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 800; // 800
-var stg_delay = 1400; // 1400
+var stg_dur = 100; // 800
+var stg_delay = 200; // 1400
 var map_duration = stg_dur * 12
 
 var width = 625 - margin.left - margin.right;
@@ -190,8 +190,8 @@ DirectedScatterPlot.prototype.update = function (data) {
         .attr("class", "annotation");
 
     annot1.append("tspan").html("Families enrolled in")
-    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF dropped by over")
-    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("50% after 1995 reform.")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("TANF dropped by 50%")
+    annot1.append("tspan").attr("x","0").attr("dy","1.2em").html("after 1996 reform.")
     annot1.transition().delay(stg_delay).duration(stg_dur).attr("opacity", 1)
     .transition().delay(stg_delay * 2).duration(stg_dur).attr("opacity", 0).remove();
 
@@ -451,25 +451,23 @@ rollingChoropleth.prototype.update = function () {
 
     var tickText = chart.tickArea
         .append("text")
-        .text(0)
+        .text("")
         .attr("class","unique")
         .attr("text-anchor", "middle")
         .attr("x", 100)
         .attr("y", 25)
         .attr("opacity", 1)
 
-    chart.tickArea    
-        .transition().duration(1000)
-        .tween("text", function(){
-
-        var that = d3.select("#unique")
-        var i = d3.interpolateNumber(1994, 2014)
+    tickText    
+        .transition().delay(4000).duration(map_duration)
+        .tween("text", function () {
+            var i = d3.interpolateNumber(1994, 2014)
+            var text = d3.select(this)
 
             return function(t) {
-                that.text(i(t));
+                text.text(Math.round(i(t)));
             };
         });
-
 
     chart.title_text.append("text")
         .text("State by state TANF-to-Poverty Ratio")
@@ -596,7 +594,6 @@ StateScatter.prototype.update = function(stateName) {
     var chart = this;
 
     var filteredData = chart.full.filter(function(d) { return d.State === stateName });
-    console.log(filteredData);
 
     chart.SVG
         .attr("width", (width + margin.left + margin.right)/2)
@@ -669,7 +666,7 @@ StateScatter.prototype.kill = function () {
     chart.svg.selectAll("g").remove();
     chart.svg.selectAll("line").remove();
     chart.svg.selectAll("text").remove();
-
+    
 };
 
 
