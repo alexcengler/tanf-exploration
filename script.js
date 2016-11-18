@@ -27,8 +27,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 100; // 800
-var stg_delay = 200; // 1400
+var stg_dur = 800
+var stg_delay = 1400
 var map_duration = stg_dur * 12
 
 var width = 625 - margin.left - margin.right;
@@ -158,7 +158,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .domain([0,1])
         .range(d3.range(1, data.length + 1));   
 
-    var line = d3.line()
+    chart.line = d3.line()
         .x(function(d) { return chart.xScale(d.fam_child_pov); })
         .y(function(d) { return chart.yScale(d.tanf_fam); })
         .curve(d3.curveCatmullRom.alpha(0.7));
@@ -172,7 +172,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(chart.full.filter(function(d) { return d.year < 2001; })
+                return chart.line(chart.full.filter(function(d) { return d.year < 2001; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })
@@ -204,7 +204,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(chart.full.filter(function(d) { return d.year >= 2000 && d.year < 2005; })
+                return chart.line(chart.full.filter(function(d) { return d.year >= 2000 && d.year < 2005; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })        
@@ -236,7 +236,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(chart.full.filter(function(d) { return d.year >= 2004 && d.year < 2008; })
+                return chart.line(chart.full.filter(function(d) { return d.year >= 2004 && d.year < 2008; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })       
@@ -268,7 +268,7 @@ DirectedScatterPlot.prototype.update = function (data) {
         .duration(stg_dur)
         .attrTween('d', function() {
             return function(t) {
-                return line(chart.full.filter(function(d) { return d.year >= 2007; })
+                return chart.line(chart.full.filter(function(d) { return d.year >= 2007; })
                     .slice(0, chart.interpolate(t) ) );
             }
         })   
@@ -301,11 +301,6 @@ DirectedScatterPlot.prototype.update = function (data) {
 DirectedScatterPlot.prototype.minimize = function () {
 
     var chart = this;
-
-    // Can move entire svg over if necessary:
-    // chart.svg
-    //     .transition().duration(1000)
-    //     .attr("transform","translate(-20,30)");
 
     chart.svg.selectAll("g.axis").remove();
 
@@ -353,23 +348,50 @@ DirectedScatterPlot.prototype.follow = function () {
 
     var chart = this;
 
+    var lineMin = d3.line()
+        .x(function(d) { return chart.xScale(d.fam_child_pov)/3; })
+        .y(function(d) { return chart.yScale(d.tanf_fam)/3; })
+        .curve(d3.curveCatmullRom.alpha(0.7));
+
+    var followPath = chart.svg.append("path")
+        .attr("id", "followPath")
+        .attr("class", "line")
+        .attr("stroke-opacity", 0)
+        .transition()
+        .delay(stg_delay)
+        .duration(stg_dur)
+        .attr('d', lineMin(chart.full));
+
     var followCircle = chart.svg.selectAll(".followPoint")
         .data(chart.full.filter(function(d,i) { return i === 0 }))
         .enter()
         .append("circle")
+        .attr("transform", function(d){ return "translate(" + chart.xScale(d.fam_child_pov)/3 + "," + chart.yScale(d.tanf_fam) / 3 + ")"})
         .attr("class", "followPoint")
         .attr("fill", "#ec008b")
-        .attr("r", 3)
-        .attr("cx", function(d){ return chart.xScale(d.fam_child_pov) / 3 })
-       .attr("cy", function(d){ return chart.yScale(d.tanf_fam) / 3 });
+        .attr("r", 3);
 
-    // var followPath = chart.svg.select(".followPath")
-    //     .append("path")
-    //     .attr("class", "followPath")
-    //     .style("stroke","#ec008b")
-    //     .attr("d", )
+    followCircle.transition()
+        .delay(4000)
+        .on("end", follow());
 
+    function follow() {
+        followCircle
+            .transition()
+            .duration(map_duration)
+            .attrTween("transform", translateAlong(followPath.node()))
+            .on("end", follow);
+    };
 
+    function translateAlong(path) {
+        var l = path.getTotalLength();
+        return function(d, i) {
+            return function(t) {
+                var p = path.getPointAtLength(t * l);
+                return "translate(" + p.x + "," + p.y + ")";
+            };
+        };
+    }
 };
 
 
@@ -575,7 +597,6 @@ rollingChoropleth.prototype.update = function () {
     chart.map
         .on("mouseover", function(d) {   
 
-
             // Pull State Name out to Pass to stateChart.update()
             var state = d3.values(d)
             var stateName = state[2].name
@@ -614,7 +635,6 @@ function StateScatter(data) {
         .attr("id", "stateChart")
 
 }
-
 
 StateScatter.prototype.update = function(stateName) {
 
@@ -693,7 +713,7 @@ StateScatter.prototype.kill = function () {
     
 };
 
-    // why is the tween for the tick text non-linear?
+    // Oh god. why is the tween for the tick text non-linear? Do I not know how these work?
 
     // Add a rolling ticker of national TANF-to-POVERTY Ratio?
 
