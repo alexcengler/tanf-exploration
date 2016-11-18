@@ -376,6 +376,7 @@ DirectedScatterPlot.prototype.follow = function () {
         followCircle
             .transition()
             .duration(map_duration)
+            .ease(d3.easeLinear)
             .attrTween("transform", translateAlong(followPath.node()))
             .on("end", follow);
     };
@@ -504,8 +505,9 @@ rollingChoropleth.prototype.update = function () {
         .attr("y", 50)
         .attr("opacity", 1)
 
+
     tickText2   
-        .transition().delay(6000).duration(map_duration)
+        .transition().delay(4000).duration(map_duration).ease(d3.easeLinear)
         .tween("text", function () {
             var i = d3.interpolateNumber(1994, 2014)
             var text = d3.select(this)
@@ -575,20 +577,24 @@ rollingChoropleth.prototype.update = function () {
         .style("stroke","white");
 
     chart.map
-        .transition().delay(1000).duration(1000)
-        .style("stroke","black")
-        .transition().delay(2000)
-        .style("fill", function(d){
-            return chart.colorScale(d.properties.value_1994);
-        })
-        .transition().delay(2000).duration(map_duration)
-        .styleTween("fill", function(d,i){
-            var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
-            return function(t){
-                var value = interpolator(t)
-                return chart.colorScale(value)
-            };
-        });
+        .transition()
+            .delay(1000)
+            .duration(1000)
+            .style("stroke","black")
+            .style("fill", function(d){
+                return chart.colorScale(d.properties.value_1994);
+            })
+        .transition()
+            .delay(2000)
+            .duration(map_duration)
+            .ease(d3.easeLinear)
+            .styleTween("fill", function(d,i){
+                var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
+                return function(t){
+                    var value = interpolator(t)
+                    return chart.colorScale(value)
+                };
+            });
 
     chart.map
         .on("mouseover", function(d) {   
