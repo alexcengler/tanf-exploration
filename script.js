@@ -27,8 +27,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 800
-var stg_delay = 1400
+var stg_dur = 200
+var stg_delay = 350
 var map_duration = stg_dur * 12
 
 var width = 625 - margin.left - margin.right;
@@ -357,23 +357,20 @@ DirectedScatterPlot.prototype.follow = function () {
         .attr("id", "followPath")
         .attr("class", "line")
         .attr("stroke-opacity", 0)
-        .transition()
-        .delay(stg_delay)
-        .duration(stg_dur)
         .attr('d', lineMin(chart.full));
 
     var followCircle = chart.svg.selectAll(".followPoint")
         .data(chart.full.filter(function(d,i) { return i === 0 }))
         .enter()
         .append("circle")
-        .attr("transform", function(d){ return "translate(" + chart.xScale(d.fam_child_pov)/3 + "," + chart.yScale(d.tanf_fam) / 3 + ")"})
-        .attr("class", "followPoint")
-        .attr("fill", "#ec008b")
-        .attr("r", 3);
+        .attr("r", 3)
+        .attr("fill", "#ec008b");
 
-    followCircle.transition()
-        .delay(4000)
-        .on("end", follow());
+    followCircle
+        .transition()
+            .delay(6000)
+            .on("end", follow())
+            .attr("r", 3);
 
     function follow() {
         followCircle
@@ -508,7 +505,7 @@ rollingChoropleth.prototype.update = function () {
         .attr("opacity", 1)
 
     tickText2   
-        .transition().delay(4000).duration(map_duration)
+        .transition().delay(6000).duration(map_duration)
         .tween("text", function () {
             var i = d3.interpolateNumber(1994, 2014)
             var text = d3.select(this)
@@ -574,13 +571,12 @@ rollingChoropleth.prototype.update = function () {
         .append("path")
         .attr("class", "map")
         .attr("d", chart.path)
+        .style("fill","white")
         .style("stroke","white");
-    chart.map
-        .transition().delay(1000).duration(1000)
-        .style("stroke","black");
 
     chart.map
-        .style("fill","white")
+        .transition().delay(1000).duration(1000)
+        .style("stroke","black")
         .transition().delay(2000)
         .style("fill", function(d){
             return chart.colorScale(d.properties.value_1994);
