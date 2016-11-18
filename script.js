@@ -76,7 +76,7 @@ DirectedScatterPlot.prototype.update = function (data) {
     chart.svg.selectAll(".year_note").remove();
     chart.svg.selectAll(".year_note_min").remove();
     chart.svg.selectAll(".annotation").remove();
-    chart.svg.selectAll(".followPoint").remove();
+    chart.svg.selectAll("#followPoint").remove();
 
     chart.SVG 
         .attr("width", width + margin.left + margin.right)
@@ -359,10 +359,11 @@ DirectedScatterPlot.prototype.follow = function () {
         .attr("stroke-opacity", 0)
         .attr('d', lineMin(chart.full));
 
-    var followCircle = chart.svg.selectAll(".followPoint")
+    var followCircle = chart.svg.selectAll("#followPoint")
         .data(chart.full.filter(function(d,i) { return i === 0 }))
         .enter()
         .append("circle")
+        .attr("id","followPoint")
         .attr("r", 3)
         .attr("fill", "#ec008b");
 
