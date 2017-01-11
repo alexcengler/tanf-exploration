@@ -27,8 +27,8 @@ var margin = {
 	bottom: 75
 };
 
-var stg_dur = 200
-var stg_delay = 350
+var stg_dur = 350
+var stg_delay = 800
 var map_duration = stg_dur * 12
 
 var width = 625 - margin.left - margin.right;
@@ -376,8 +376,7 @@ DirectedScatterPlot.prototype.follow = function () {
     function follow() {
         followCircle
             .transition()
-            .duration(map_duration)
-            .ease(d3.easeLinear)
+            .duration(map_duration*3)
             .attrTween("transform", translateAlong(followPath.node()))
             .on("end", follow);
     };
@@ -508,7 +507,7 @@ rollingChoropleth.prototype.update = function () {
 
 
     tickText2   
-        .transition().delay(4000).duration(map_duration).ease(d3.easeLinear)
+        .transition().delay(4000).duration(map_duration*3)
         .tween("text", function () {
             var i = d3.interpolateNumber(1994, 2014)
             var text = d3.select(this)
@@ -587,8 +586,7 @@ rollingChoropleth.prototype.update = function () {
             })
         .transition()
             .delay(2000)
-            .duration(map_duration)
-            .ease(d3.easeLinear)
+            .duration(map_duration*3)
             .styleTween("fill", function(d,i){
                 var interpolator = d3.interpolateNumber(d.properties.value_1994, d.properties.value_2013);
                 return function(t){
